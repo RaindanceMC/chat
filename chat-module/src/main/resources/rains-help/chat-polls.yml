@@ -1,0 +1,28 @@
+id: chat-polls
+title: Polls
+summary: "Ask everybody a question with a button per answer, and see how it stands."
+intro: |
+  Democracy, six answers at a time.
+icon: PAPER
+category: Chat & community
+order: 12
+module: chat
+when: chat:polls-enabled
+aliases: [poll, vote, voting]
+keywords: [question, answer, results, end]
+commands: [poll]
+related: [chat]
+sections:
+  - question: How do I vote?
+    title: Voting
+    text: |
+      A running poll shows a button per answer in chat; click one. You can change your mind until it ends. {cmd:/poll results} shows how it stands. Only one poll runs at a time.
+  - question: How do I start a poll?
+    title: Starting a poll
+    permission: chat.poll
+    text: |
+      {run:/poll} opens a builder menu. Quicker: {cmd:/poll 2m Best mob? | Creeper | Axolotl}. A question alone is a yes-or-no poll. Question up to 100 characters, two to six answers of up to 24 characters each, no duplicates. Without a length it runs <white>{setting:chat:poll-seconds|seconds}</white>; you can give anything from 10 seconds to an hour.
+  - question: How do I end one?
+    title: Ending
+    text: |
+      {cmd:/poll end} ends it now — only for whoever started it, or staff (chat.poll.manage). The results go to everybody, with the winner or the tie.

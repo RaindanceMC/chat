@@ -20,7 +20,9 @@
 
     <!-- This repository's own versions: bump them here. CI publishes a new version on the next push to master. -->
     <properties>
-        <chat-module.version>1.19.1</chat-module.version>
+        <rainscore.version>2.4.0</rainscore.version>
+        <modules-wrapper.version>1.9.0</modules-wrapper.version>
+        <chat-module.version>1.20.0</chat-module.version>
     </properties>
 
     <modules>

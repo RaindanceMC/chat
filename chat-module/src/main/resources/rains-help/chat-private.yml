@@ -1,0 +1,27 @@
+id: chat-private
+title: Private chats & channels
+summary: "Talk to just a few people: private chats, channels such as team chat, and switching back."
+intro: |
+  For when the whole server does not need to know.
+icon: ENDER_CHEST
+category: Chat & community
+order: 11
+module: chat
+permission: chat.private
+aliases: [private, channel, privatechat, team chat]
+keywords: [invite, accept, decline, leave, end, public, team, all]
+commands: [chat]
+related: [chat]
+sections:
+  - question: How do I start a private chat?
+    title: Starting
+    text: |
+      {cmd:/chat private <player>} invites somebody; with no name it starts (or returns to) your chat. They join by clicking [Accept] or typing {cmd:/chat private accept <player>} — the invitation stands for 60 seconds. You can be in one private chat at a time; whoever started it owns it.
+  - question: How do I talk there and back?
+    title: Switching
+    text: |
+      Once in, your messages go to the private chat. {cmd:/chat public} talks in public again while you still read the private one; {cmd:/chat private} goes back. {run:/chat} opens a menu of your channels; {cmd:/chat all} returns to everybody and {cmd:/chat team} talks to your team where you have one.
+  - question: How do I manage it?
+    title: Members
+    text: |
+      The owner removes somebody with {cmd:/chat private remove <player>}. Anybody leaves with {cmd:/chat private leave}; the owner closes it for everybody with {cmd:/chat private end}. {cmd:/chat private list} shows who is in. If the owner goes offline, the chat closes.

@@ -1,0 +1,48 @@
+id: chat
+title: Chat
+summary: "Talking, @-mentions, links, chat history, your own message colour and the rules that keep chat readable."
+intro: |
+  Words, mostly. Here is what the chat does with yours.
+icon: WRITABLE_BOOK
+category: Chat & community
+order: 10
+module: chat
+aliases: [talk, say, mention, history, chathistory, chatstyle, slowmode, caps, spam]
+keywords: [message, colour, color, mute, shouting, repeat, cooldown, network, channel, click name]
+commands: [chathistory, chatstyle]
+related: [chat-private, chat-polls, chat-ads, chat-staff]
+sections:
+  - question: How does chat work?
+    title: Basics
+    text: |
+      Type and press Enter; everybody online hears you.{if:chat:click-to-message} Click somebody's name in chat to start a message to them.{/if}
+      {if:chat:linkify-urls}Web addresses are coloured and clickable.{/if}
+  - question: What is the network chat?
+    title: Network chat
+    when: chat-network:network.enabled
+    text: |
+      Public chat is shared with the other servers: what you say here is shown there, tagged <white>{setting:chat-network:network.tag}</white>, and theirs here. Private chats and channels stay on their server. A mute applies on every server.
+  - question: What are the @-mentions?
+    title: Mentions
+    when: chat:mentions-enabled
+    text: |
+      Type <white>@name</white> and that player gets a ping sound and a message with what you wrote, so it is not lost in a busy chat. If they were away, they are told how many times they were mentioned when they return.
+  - question: What did I miss?
+    title: Chat history
+    when: chat:history-enabled
+    text: |
+      {cmd:/chathistory} shows what was said while you were away; {cmd:/chathistory <count>} shows the last lines regardless of when you left. The server remembers the last <white>{setting:chat:history-capacity|count}</white> lines — for everybody together — and deletes lines older than <white>{setting:chat:history-retention-days|days}</white>.
+      {if:chat:history-notify-on-join}When you join and missed something, you are told.{/if}
+  - question: Can I colour my messages?
+    title: Chat style
+    permission: chat.style
+    text: |
+      {run:/chatstyle} opens a menu to pick a colour and decorations, with a preview. "No colour" goes back to the default (<white>{setting:chat:default-message-color}</white>). It never overrides colours others pick for themselves.
+  - question: Why was my message refused?
+    title: Message rules
+    text: |
+      {if:chat:caps-filter-enabled}<b>Shouting:</b> a message of at least {setting:chat:caps-min-length|count} characters with {setting:chat:caps-threshold-percent|percent} or more capital letters is refused.{/if}
+      {if:chat:repeat-block-enabled}<b>Repeats:</b> the same message twice in a row is refused.{/if}
+      {if:chat:message-cooldown-seconds > 0}<b>Cooldown:</b> wait {setting:chat:message-cooldown-seconds|seconds} between messages.{/if}
+      {if:chat:default-slowmode-seconds > 0}<b>Slowmode:</b> chat is slowed down by {setting:chat:default-slowmode-seconds|seconds} for everybody right now.{/if}
+      Staff can switch chat into slowmode or freeze it; while frozen only staff may talk. Staff with the bypass permission are never refused.

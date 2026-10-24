@@ -1,0 +1,26 @@
+id: chat-ads
+title: Ads
+summary: "Pay to broadcast one line to everybody online."
+intro: |
+  Have something to sell? Shout it, politely, and pay for the privilege.
+icon: GOLD_NUGGET
+category: Chat & community
+order: 13
+module: chat
+when: chat:ads.enabled
+permission: chat.ad
+aliases: [ad, advert, advertise]
+keywords: [broadcast, price, sell]
+commands: [ad]
+related: [chat]
+sections:
+  - question: How do I place an ad?
+    title: Placing an ad
+    text: |
+      {cmd:/ad <message>} tells everybody online, up to <white>{setting:chat:ads.most-length|count}</white> characters.
+      {if:chat:ads.price != 0}It costs <white>{setting:chat:ads.price|money}</white>, and an ad the chat filters refuse is not charged.{else}Ads are free.{/if}
+  - question: Can I place many?
+    title: Cooldown
+    when: chat:ads.cooldown-seconds > 0
+    text: |
+      Wait <white>{setting:chat:ads.cooldown-seconds|seconds}</white> after an ad before the next. Staff with the bypass permission skip that.

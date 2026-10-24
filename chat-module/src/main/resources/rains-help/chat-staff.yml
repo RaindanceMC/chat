@@ -1,0 +1,40 @@
+id: chat-staff
+title: Chat moderation
+summary: "Clearing, freezing and slowing down chat, announcements, and speaking from the console."
+intro: |
+  Chat on fire? You have a hose.
+icon: BELL
+category: Staff
+order: 10
+module: chat
+permission: chat.admin
+aliases: [announce, bc, freeze, clear, slowmode]
+keywords: [moderation, banner, broadcast, freeze, mute]
+commands: [announce]
+related: [chat]
+sections:
+  - question: How do I clear chat?
+    title: Clear
+    text: |
+      {cmd:/chat clear} sends a wall of blank lines and says who did.
+  - question: How do I freeze chat?
+    title: Freeze
+    text: |
+      {cmd:/chat freeze} toggles it. While frozen only staff with chat.bypass.freeze may talk.
+  - question: How do I slow chat down?
+    title: Slowmode
+    text: |
+      {cmd:/chat slowmode <seconds|off>}, 0 to 60 seconds, applies to everybody on top of the per-player cooldown (now {setting:chat:message-cooldown-seconds|seconds}, default slowmode {setting:chat:default-slowmode-seconds|seconds}). Raise it for a busy moment rather than leaving it high.
+  - question: How do I make an announcement?
+    title: Announce
+    permission: chat.announce
+    text: |
+      {cmd:/announce <message>} (alias bc) shows a banner every online player sees and hears.
+  - question: Which permissions are there?
+    title: Permissions
+    text: |
+      chat.admin clear/freeze/slowmode; chat.bypass.filters skips caps, repeat, cooldown and slowmode; chat.bypass.freeze talks while frozen; chat.poll starts polls and chat.poll.manage ends anybody's; chat.style the colour menu.
+  - question: Can the console speak?
+    title: Console say
+    text: |
+      {cmd:/chat say <player> <message>} from the console (e.g. a panel's chat page) makes a public line in that player's name, marked as from the console so moderation never mistakes it. A muted player is not spoken for.
