@@ -1,8 +1,13 @@
 package de.raindancer.modules.chat.service;
 
 import de.raindancer.core.ui.chat.Chat;
+import de.raindancer.core.ui.effect.Cues;
+import de.raindancer.core.ui.effect.Effect;
+import de.raindancer.core.ui.effect.EffectSink;
+import de.raindancer.core.ui.effect.Effects;
 import de.raindancer.core.ui.messages.Messages;
 import de.raindancer.modules.chat.ChatSettings;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.DisplayName;
@@ -30,7 +35,13 @@ class ChatEffectsTest {
     private final ChatQualityService quality = new ChatQualityService(ChatSettings.DEFAULTS);
     private final FormatService format = mock(FormatService.class);
     private final List<Collection<UUID>> cues = new ArrayList<>();
-    private final ChatEffects effects = new ChatEffects(server, chat, messages, freeze, quality, format, cues::add);
+    private final List<Collection<UUID>> adCues = new ArrayList<>();
+    private final List<Component> adBars = new ArrayList<>();
+    private final ChatEffects effects = new ChatEffects(server, chat, messages, freeze, quality, format, cues::add,
+            (who, bar) -> {
+                adCues.add(who);
+                adBars.add(bar);
+            });
 
     @Test
     @DisplayName("freeze and slowmode are set to the state asked for, and read back as the state")
@@ -81,17 +92,52 @@ class ChatEffectsTest {
     }
 
     @Test
-    @DisplayName("a banner and an ad play the notify cue for everybody online")
-    void cuesEverybody() {
+    @DisplayName("a banner plays the notify cue for everybody online")
+    void bannerCuesEverybody() {
+        UUID id = onlinePlayer();
+
+        effects.banner("hi");
+
+        assertThat(cues).singleElement().satisfies(who -> assertThat(who).containsExactly(id));
+        assertThat(adCues).isEmpty();
+    }
+
+    @Test
+    @DisplayName("an ad is framed in chat, and everybody online hears the ad cue and sees it on the action bar")
+    void adCuesEverybody() {
+        UUID id = onlinePlayer();
+        UUID lilly = UUID.randomUUID();
+        Component bar = Component.text("Ad · Lilly: cows");
+        when(format.renderAdBar(lilly, "Lilly", "cows")).thenReturn(bar);
+
+        effects.ad(lilly, "Lilly", "cows");
+
+        verify(format).renderAd(lilly, "Lilly", "cows");
+        assertThat(adCues).singleElement().satisfies(who -> assertThat(who).containsExactly(id));
+        assertThat(adBars).containsExactly(bar);
+        assertThat(cues).as("the plain notify cue is not played on top").isEmpty();
+    }
+
+    @Test
+    @DisplayName("the ad cue is a sound of its own, and an owner's own binding for it is kept")
+    void adCueBinding() {
+        Effects fresh = new Effects(mock(EffectSink.class), System::currentTimeMillis);
+        ChatEffects.defineAdCue(fresh);
+        assertThat(fresh.boundTo(ChatEffects.AD_CUE)).isPresent()
+                .get().satisfies(bound -> assertThat(bound.isSilent()).isFalse())
+                .isNotEqualTo(fresh.boundTo(Cues.NOTIFY).orElseThrow());
+
+        Effects owned = new Effects(mock(EffectSink.class), System::currentTimeMillis);
+        owned.define(ChatEffects.AD_CUE, Effect.silence());
+        ChatEffects.defineAdCue(owned);
+        assertThat(owned.boundTo(ChatEffects.AD_CUE)).contains(Effect.silence());
+    }
+
+    private UUID onlinePlayer() {
         Player a = mock(Player.class);
         UUID id = UUID.randomUUID();
         when(a.getUniqueId()).thenReturn(id);
         doReturn(List.of(a)).when(server).getOnlinePlayers();
-
-        effects.banner("hi");
-        effects.ad(UUID.randomUUID(), "Lilly", "cows");
-
-        assertThat(cues).hasSize(2).allSatisfy(who -> assertThat(who).containsExactly(id));
-        verify(format).renderAd(any(UUID.class), any(String.class), any(String.class));
+        return id;
     }
 }

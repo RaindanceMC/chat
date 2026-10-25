@@ -4,6 +4,7 @@ import de.raindancer.core.data.settings.SettingsStore;
 import de.raindancer.core.platform.log.LogChannel;
 import de.raindancer.core.platform.network.NetworkServers;
 import de.raindancer.core.platform.network.Presence;
+import de.raindancer.core.ui.actionbar.ActionBarPriority;
 import de.raindancer.core.ui.effect.Cues;
 import de.raindancer.modules.api.FlexModule;
 import de.raindancer.modules.api.ModuleCommand;
@@ -49,7 +50,7 @@ import java.util.function.Predicate;
  */
 public final class ChatModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("chat", "Chat", "1.20.0")
+    private static final ModuleInfo INFO = ModuleInfo.of("chat", "Chat", "1.21.0")
             .describedAs("Chat format, @-mentions, a caps and repeat filter, a message cooldown, "
                     + "private chats, and /chat clear, freeze and slowmode")
             .by("Raindancer118");
@@ -65,6 +66,7 @@ public final class ChatModule implements FlexModule {
 
     /** What the Pelican panel's chat page shows. */
     private static final int PANEL_FEED_LINES = 100;
+    private static final java.time.Duration AD_BAR_LIFETIME = java.time.Duration.ofSeconds(6);
     private de.raindancer.modules.chat.service.NetworkChatService network;
     private java.util.function.BiConsumer<java.util.UUID, String> channelWatcher;
 
@@ -159,7 +161,11 @@ public final class ChatModule implements FlexModule {
         context.closeWith(networkMentions::stop);
 
         ChatEffects effects = new ChatEffects(server, context.chat(), context.core().messages(), freeze, quality,
-                format, who -> core.effects().playForAll(who, Cues.NOTIFY));
+                format, who -> core.effects().playForAll(who, Cues.NOTIFY), (who, bar) -> {
+                    core.effects().playForAll(who, ChatEffects.AD_CUE);
+                    who.forEach(id -> core.actionBars().show(id, "chat:ad", bar, AD_BAR_LIFETIME, ActionBarPriority.NORMAL));
+                });
+        ChatEffects.defineAdCue(core.effects());
         ChatNetwork chatNetwork = new ChatNetwork(core.bus(), core::networkCalls, onNetwork,
                 () -> core.networkPlayers().map(players -> players.servers().stream().map(NetworkServers.Server::id)
                         .filter(id -> !id.equals(players.self())).toList()).orElse(List.of()),

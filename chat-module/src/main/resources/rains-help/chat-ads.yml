@@ -18,6 +18,7 @@ sections:
     title: Placing an ad
     text: |
       {cmd:/ad <message>} tells everybody online, up to <white>{setting:chat:ads.most-length|count}</white> characters.
+      It shows framed in chat, with a chime and a line above the hotbar.
       {if:chat:ads.price != 0}It costs <white>{setting:chat:ads.price|money}</white>, and an ad the chat filters refuse is not charged.{else}Ads are free.{/if}
   - question: Can I place many?
     title: Cooldown

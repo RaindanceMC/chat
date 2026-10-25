@@ -105,6 +105,19 @@ public final class FormatService implements IChatService {
                 Chat.formatted("message", linkifyIfEnabled(plainText)));
     }
 
+    /** The action bar line of an ad: a short reminder, cut to this many characters; chat has the whole of it. */
+    public static final int AD_BAR_LENGTH = 60;
+
+    private static final String AD_BAR = "<gold><b>Ad</b> <dark_gray>· <reset><name><gray>: <yellow><message>";
+
+    public Component renderAdBar(java.util.UUID sender, String name, String plainText) {
+        String text = plainText == null ? "" : plainText.strip();
+        if (text.length() > AD_BAR_LENGTH) {
+            text = text.substring(0, AD_BAR_LENGTH).stripTrailing() + "…";
+        }
+        return chat.mm(AD_BAR, Chat.formatted("name", nameOf(sender, name)), Chat.formatted("message", Component.text(text)));
+    }
+
     private Component mentionsOf(String plainText, List<Mention> mentions) {
         if (plainText == null || plainText.isBlank()) {
             return Component.text(plainText == null ? "" : plainText);

@@ -66,11 +66,50 @@ class FormatServiceTest {
     }
 
     @Test
-    @DisplayName("an ad is laid out in the ad template, with the advertiser's name and the text")
+    @DisplayName("an ad is a framed block: a ruled header saying Ad, the advertiser and the text, a ruled footer")
     void rendersAd() {
         Component rendered = service.renderAd(player("Tom"), "selling cobble");
 
-        assertThat(PLAIN.serialize(rendered)).isEqualTo("[Ad] Tom: selling cobble");
+        String[] lines = PLAIN.serialize(rendered).split("\n");
+        assertThat(lines).hasSize(3);
+        assertThat(lines[0].strip()).isEqualTo("Ad");
+        assertThat(lines[1].strip()).isEqualTo("Tom: selling cobble");
+        assertThat(lines[2]).isBlank();
+    }
+
+    @Test
+    @DisplayName("an owner's config still holding the old one-line default gets the framed block")
+    void oldDefaultUpgrades() {
+        assertThat(settingsWithAdFormat(ChatSettings.OLD_AD_FORMAT).adTemplate()).isEqualTo(ChatSettings.AD_FORMAT);
+        assertThat(settingsWithAdFormat("<gold>$ <name>: <message>").adTemplate()).isEqualTo("<gold>$ <name>: <message>");
+    }
+
+    @Test
+    @DisplayName("the action bar line says Ad, who placed it and what it says")
+    void rendersAdBar() {
+        Component bar = service.renderAdBar(UUID.randomUUID(), "Tom", "selling cobble");
+
+        assertThat(PLAIN.serialize(bar)).isEqualTo("Ad · Tom: selling cobble");
+    }
+
+    @Test
+    @DisplayName("a long ad is cut short on the action bar, the whole of it is in chat")
+    void longAdBarIsCut() {
+        String text = "x".repeat(200);
+
+        String bar = PLAIN.serialize(service.renderAdBar(UUID.randomUUID(), "Tom", text));
+
+        assertThat(bar).endsWith("…").hasSizeLessThanOrEqualTo("Ad · Tom: ".length() + FormatService.AD_BAR_LENGTH + 1);
+    }
+
+    private static ChatSettings settingsWithAdFormat(String adFormat) {
+        ChatSettings d = ChatSettings.DEFAULTS;
+        return new ChatSettings(d.format(), d.clickToMessage(), d.linkifyUrls(), d.defaultMessageColor(),
+                d.defaultNameColor(), d.bracketsAroundName(), d.mentionsEnabled(), d.capsFilterEnabled(),
+                d.capsThresholdPercent(), d.capsMinLength(), d.repeatBlockEnabled(), d.messageCooldownSeconds(),
+                d.defaultSlowmodeSeconds(), d.historyEnabled(), d.historyCapacity(), d.historyNotifyOnJoin(),
+                d.pollsEnabled(), d.pollSeconds(), d.adsEnabled(), d.adsPrice(), d.adsCooldownSeconds(),
+                d.adsMostLength(), adFormat);
     }
 
     @Nested

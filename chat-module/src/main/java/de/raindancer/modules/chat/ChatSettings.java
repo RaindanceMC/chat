@@ -178,8 +178,16 @@ public record ChatSettings(
                 adsMostLength, adsFormat, RETENTION_DAYS);
     }
 
-    /** The format an ad has until an owner writes one. */
-    public static final String AD_FORMAT = "<gold>[Ad] <reset><name><gray>: <yellow><message>";
+    /**
+     * The format an ad has until an owner writes one: ruled above and below so it does not read as one more chat
+     * line. Struck-through spaces are how Minecraft draws a rule; both rules are the same width in the default font.
+     */
+    public static final String AD_FORMAT = "<gold><st>               </st> <b>Ad</b> <st>               </st></gold>"
+            + "<newline> <reset><name><gray>: <yellow><message>"
+            + "<newline><gold><st>                                    </st>";
+
+    /** The default before 1.21.0. Still written in owners' configs, where it means "the default", not a choice. */
+    public static final String OLD_AD_FORMAT = "<gold>[Ad] <reset><name><gray>: <yellow><message>";
 
     /** Every setting from before ads, with ads off — so what predates them keeps compiling. */
     public ChatSettings(String format, boolean clickToMessage, boolean linkifyUrls, NamedTextColor defaultMessageColor,
@@ -242,6 +250,6 @@ public record ChatSettings(
     }
 
     public String adTemplate() {
-        return adsFormat == null || adsFormat.isBlank() ? AD_FORMAT : adsFormat;
+        return adsFormat == null || adsFormat.isBlank() || OLD_AD_FORMAT.equals(adsFormat.strip()) ? AD_FORMAT : adsFormat;
     }
 }
