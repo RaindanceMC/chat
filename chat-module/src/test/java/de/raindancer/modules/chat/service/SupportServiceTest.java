@@ -146,4 +146,76 @@ class SupportServiceTest {
         assertThat(service(new SupportSettings(true, LINK, "  ", 30, 0)).buttonText())
                 .isEqualTo(SupportSettings.BUTTON);
     }
+
+    private static SupportSettings followingUp(int minutes) {
+        SupportSettings on = on(180, 0);
+        return new SupportSettings(on.enabled(), on.link(), on.button(), on.afterMinutes(), on.againAfterHours(),
+                on.signed(), on.rewards(), on.webhookPort(), on.webhookHost(), on.feePercent(), on.feeFixed(), minutes);
+    }
+
+    @Test
+    @DisplayName("an unread note is followed by the whole letter once the set active minutes have passed")
+    void followUpWhenUnread() {
+        SupportService support = service(followingUp(25));
+
+        support.reminded(player, 180);
+        assertThat(support.isFollowUpDue(player, 204)).isFalse();
+        assertThat(support.isFollowUpDue(player, 205)).isTrue();
+    }
+
+    @Test
+    @DisplayName("no follow-up for somebody who opened the letter")
+    void noFollowUpWhenOpened() {
+        SupportService support = service(followingUp(25));
+
+        support.reminded(player, 180);
+        support.opened(player);
+        assertThat(support.isFollowUpDue(player, 1_000)).isFalse();
+    }
+
+    @Test
+    @DisplayName("the follow-up comes once")
+    void followUpOnce() {
+        SupportService support = service(followingUp(25));
+
+        support.reminded(player, 180);
+        support.followedUp(player);
+        assertThat(support.isFollowUpDue(player, 1_000)).isFalse();
+    }
+
+    @Test
+    @DisplayName("zero minutes: no follow-ups; and nobody who had the note before follow-ups existed gets one")
+    void followUpOffAndOldNotes() {
+        SupportService off = service(followingUp(0));
+        off.reminded(player, 180);
+        assertThat(off.isFollowUpDue(player, 1_000)).isFalse();
+
+        UUID earlier = UUID.randomUUID();
+        reminders.set(earlier, 180);
+        assertThat(service(followingUp(25)).isFollowUpDue(earlier, 1_000)).isFalse();
+    }
+
+    @Test
+    @DisplayName("a pending follow-up survives the move to another server, and so does having opened the letter")
+    void followUpAcrossServers() {
+        SupportService here = service(followingUp(25));
+        UUID reader = UUID.randomUUID();
+        here.reminded(player, 180);
+        here.reminded(reader, 180);
+        here.opened(reader);
+        assertThat(reminders.save()).isTrue();
+
+        SupportReminders there = new SupportReminders(folder);
+        there.load();
+        SupportService elsewhere = new SupportService(followingUp(25), there);
+        assertThat(elsewhere.isFollowUpDue(player, 205)).isTrue();
+        assertThat(elsewhere.isFollowUpDue(reader, 205)).isFalse();
+    }
+
+    @Test
+    @DisplayName("settings saved before follow-ups existed follow up after 25 minutes")
+    void followUpDefault() {
+        assertThat(on(180, 0).followUpMinutes()).isEqualTo(SupportSettings.FOLLOW_UP_MINUTES).isEqualTo(25);
+        assertThat(SupportSettings.DEFAULTS.followUpMinutes()).isEqualTo(25);
+    }
 }

@@ -90,7 +90,8 @@ public final class SupportFeature {
 
         // Once a minute, the same beat Core counts playtime on.
         var timer = Scheduling.globalTimer(plugin, 1200, 1200, task -> {
-            if (notes.tick()) {
+            // a letter opened since the last beat is saved too, so another server does not follow it up
+            if (notes.tick() | reminders.isDirty()) {
                 Scheduling.async(plugin, () -> {
                     reminders.save();
                     core.supporters().save();

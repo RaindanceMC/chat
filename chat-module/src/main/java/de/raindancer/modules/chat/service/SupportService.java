@@ -72,6 +72,26 @@ public final class SupportService {
 
     public void reminded(UUID who, long playedMinutes) {
         reminders.set(who, playedMinutes);
+        reminders.followUpFrom(who, playedMinutes);
+    }
+
+    /** Whether their note has gone unread long enough for the whole letter to follow in chat. */
+    public boolean isFollowUpDue(UUID who, long playedMinutes) {
+        SupportSettings live = settings;
+        long after = live.followUpAfterMinutes();
+        if (!live.enabled() || link().isEmpty() || after == 0) {
+            return false;
+        }
+        OptionalLong from = reminders.followUpFrom(who);
+        return from.isPresent() && playedMinutes - from.getAsLong() >= after;
+    }
+
+    public void opened(UUID who) {
+        reminders.followUpDone(who);
+    }
+
+    public void followedUp(UUID who) {
+        reminders.followUpDone(who);
     }
 
     /**

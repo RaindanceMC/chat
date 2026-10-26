@@ -50,7 +50,7 @@ import java.util.function.Predicate;
  */
 public final class ChatModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("chat", "Chat", "1.26.1")
+    private static final ModuleInfo INFO = ModuleInfo.of("chat", "Chat", "1.27.0")
             .describedAs("Chat format, @-mentions, a caps and repeat filter, a message cooldown, "
                     + "private chats, and /chat clear, freeze and slowmode")
             .by("Raindancer118");

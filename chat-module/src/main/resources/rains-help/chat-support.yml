@@ -22,4 +22,4 @@ sections:
     title: A little thank-you
     when: chat-support:support.rewards
     text: |
-      The window shows your own code. Write it in your coffee's message, and a <#C8A27A>☕</#C8A27A> badge by your name, a coffee-bean trail and weapon skins in {cmd:/cosmetics} are yours — only ever cosmetic, nothing that helps in the game. You can hide the badge in Cosmetics.
+      The window shows your own code. Write it in your coffee's message, and a <#C8A27A>☕</#C8A27A> badge by your name, a coffee-bean trail, weapon skins and the whole library of particles and sounds in {cmd:/cosmetics} are yours — only ever cosmetic, nothing that helps in the game. You can hide the badge in Cosmetics.

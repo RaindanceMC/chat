@@ -51,6 +51,16 @@ public final class SupportNotes {
                 continue;
             }
             long played = core.playtime().played(who).toMinutes();
+            if (support.isFollowUpDue(who, played)) {
+                Optional<String> link = support.link();
+                if (link.isPresent()) {
+                    support.followedUp(who);
+                    player.sendMessage(letterFor(player, false).inChat(link.get()));
+                    core.effects().play(who, de.raindancer.core.ui.effect.Cues.NOTIFY);
+                    told = true;
+                }
+                continue;
+            }
             if (!support.isDue(who, played)) {
                 continue;
             }
@@ -75,19 +85,25 @@ public final class SupportNotes {
         if (link.isEmpty()) {
             return false;
         }
+        boolean wearing = core.resourcePacks().isWearing(player.getUniqueId());
+        support.opened(player.getUniqueId());
+        SupportWindow.show(player, letterFor(player, wearing), link.get(), wearing);
+        return true;
+    }
+
+    private SupportLetter letterFor(Player player, boolean wearing) {
         UUID who = player.getUniqueId();
-        boolean wearing = core.resourcePacks().isWearing(who);
         SupportLetter letter = SupportLetter.of(core.messages(), player.getName(), support.buttonText(),
-                link.get(), support.signed(), wearing);
+                support.link().orElse(""), support.signed(), wearing);
         if (core.supporters().isSupporter(who)) {
-            letter = letter.forSupporter();
-        } else if (support.current().rewards()) {
+            return letter.forSupporter();
+        }
+        if (support.current().rewards()) {
             letter = letter.forCode(codes.codeOf(who));
             if (codes.isDirty()) {
                 Scheduling.async(plugin, codes::save);
             }
         }
-        SupportWindow.show(player, letter, link.get(), wearing);
-        return true;
+        return letter;
     }
 }

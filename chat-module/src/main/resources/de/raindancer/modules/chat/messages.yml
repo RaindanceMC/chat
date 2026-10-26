@@ -86,13 +86,14 @@ chat:
       buy: "<gradient:#F3E3CC:#E8B98A>☕ <button></gradient>"
       buy-tooltip: "<#D9BFA0>Opens <#F3E3CC><link>"
       later: "<#E8D9C4>Not right now"
-      code: "<#D9BFA0>Want a little thank-you? Write <#F3E3CC><bold><code></bold><#D9BFA0> in your coffee's message, and a <#C8A27A>☕</#C8A27A> badge by your name, a coffee-bean trail and weapon skins are yours."
+      code: "<#D9BFA0>Want a little thank-you? Write <#F3E3CC><bold><code></bold><#D9BFA0> in your coffee's message, and a <#C8A27A>☕</#C8A27A> badge by your name, a coffee-bean trail, weapon skins and every particle and sound are yours."
       copy: "<#E8D9C4>Copy <code>"
       copy-tooltip: "<#D9BFA0>Copies your code, ready to paste. The window closes — /support brings it back."
       supporter: "<#C8A27A>☕ <#F3E3CC>You're a supporter — thank you so much!"
+    follow-up: "<#C8A27A>☕ <#F3E3CC>The message from earlier, in case it slipped by:"
     thanks: |-
       <#C8A27A>☕ <#F3E3CC><bold>Thank you so much, <player>!</bold>
-      <#D9BFA0>Your coffee arrived. The <#C8A27A>☕</#C8A27A> badge by your name, the coffee-bean trail and weapon skins in /cosmetics are yours now.
+      <#D9BFA0>Your coffee arrived. The <#C8A27A>☕</#C8A27A> badge by your name, the coffee-bean trail, weapon skins and every particle and sound in /cosmetics are yours now.
     admin:
       usage: "<gray>/support admin inbox <dark_gray>|</dark_gray> give <player> [amount] <dark_gray>|</dark_gray> take <player> <dark_gray>|</dark_gray> assign <number> <player> <dark_gray>|</dark_gray> dismiss <number>"
       inbox-empty: "<gray>No donations are waiting — every one so far came with a code."

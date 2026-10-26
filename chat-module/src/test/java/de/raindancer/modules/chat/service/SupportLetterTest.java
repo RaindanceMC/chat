@@ -141,4 +141,18 @@ class SupportLetterTest {
         }
         component.children().forEach(child -> collect(child, found));
     }
+
+    @Test
+    @DisplayName("the follow-up in chat is the whole letter, code and signature included, with a button to the link")
+    void inChat() {
+        for (Messages.Tone tone : Messages.Tone.values()) {
+            Component chat = SupportLetter.of(messages(tone), "Steve", "Buy me a coffee", LINK, "Raindancer118", true)
+                    .forCode("BEAN-ACDEF").inChat(LINK);
+
+            assertThat(plain(chat)).as(tone.name()).contains("Steve", "Buy me a coffee", "BEAN-ACDEF", "Raindancer118")
+                    .doesNotContain(SupportLetter.HEADER_GLYPH, "<player>", "<button>", "<code>", "<#", "</");
+            assertThat(clicks(chat)).as(tone.name()).containsExactly(ClickEvent.openUrl(LINK));
+        }
+    }
+
 }

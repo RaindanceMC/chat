@@ -3,6 +3,8 @@ package de.raindancer.modules.chat.service;
 import de.raindancer.core.ui.messages.Messages;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 
 import java.util.Optional;
 
@@ -60,6 +62,25 @@ public record SupportLetter(Component title, Optional<Component> header, Compone
         return new SupportLetter(title, header, greeting, text, signature, footer, buy, buyTooltip, later,
                 Optional.of(messages.get("chat.support.window.supporter")), Optional.empty(), Optional.empty(),
                 messages);
+    }
+
+    /**
+     * The whole letter as chat lines, for somebody who never opened the window: no painted header (chat has no room
+     * for it) and the buy button as a link.
+     */
+    public Component inChat(String link) {
+        Component nl = Component.newline();
+        Component button = buy.clickEvent(ClickEvent.openUrl(link)).hoverEvent(HoverEvent.showText(buyTooltip));
+        Component chat = Component.text().append(messages.get("chat.support.follow-up")).append(nl).append(nl)
+                .append(greeting).append(nl).append(text).build();
+        if (reward.isPresent()) {
+            chat = chat.append(nl).append(reward.get());
+        }
+        chat = chat.append(nl).append(button);
+        if (signature.isPresent()) {
+            chat = chat.append(nl).append(signature.get());
+        }
+        return chat.append(nl).append(footer);
     }
 
     /** Said in chat once a coffee with their code has arrived. */

@@ -83,7 +83,23 @@ public record SupportSettings(
         @In("chat/support") @Title("Fixed fee per payment")
         @Describe("Taken from every payment on top of the percentage, e.g. 0.30.")
         @Key("support.fee-fixed")
-        String feeFixed) {
+        String feeFixed,
+
+        @In("chat/support") @Title("Active minutes before the whole letter follows") @Range(min = 0, max = 1440)
+        @Describe("Somebody who got the note but did not open it gets the whole letter in chat after this many "
+                + "minutes of active play, once. Zero: no follow-up.")
+        @Key("support.follow-up-minutes")
+        int followUpMinutes) {
+
+    public static final int FOLLOW_UP_MINUTES = 25;
+
+    /** Every setting from before the follow-up: 25 minutes. */
+    public SupportSettings(boolean enabled, String link, String button, int afterMinutes, int againAfterHours,
+                           String signed, boolean rewards, int webhookPort, String webhookHost, String feePercent,
+                           String feeFixed) {
+        this(enabled, link, button, afterMinutes, againAfterHours, signed, rewards, webhookPort, webhookHost,
+                feePercent, feeFixed, FOLLOW_UP_MINUTES);
+    }
 
     public static final String FEE_PERCENT = "7.9";
     public static final String FEE_FIXED = "0.30";
@@ -141,6 +157,11 @@ public record SupportSettings(
     /** Zero: never again. */
     public long remindAgainMinutes() {
         return Math.max(0, Math.min(10000, againAfterHours)) * 60L;
+    }
+
+    /** Zero: no follow-up. */
+    public long followUpAfterMinutes() {
+        return Math.max(0, Math.min(1440, followUpMinutes));
     }
 
     public String listenOn() {
