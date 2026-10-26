@@ -17,4 +17,4 @@ sections:
   - question: How can I support the server?
     title: The support link
     text: |
-      {cmd:/support} shows the link, with a button to open it. Every <white>{setting:chat-support:support.every-minutes|minutes}</white> it is also posted in chat for everybody. Supporting is optional and gets you nothing in game.
+      {cmd:/support} shows the link, with a button to open it. After <white>{setting:chat-support:support.after-minutes|minutes}</white> of playtime you also get a short note about it, just you. Supporting is optional and gets you nothing in game.

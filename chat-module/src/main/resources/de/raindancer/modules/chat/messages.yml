@@ -73,8 +73,8 @@ chat:
   # ── the support link, now and then and on /support ───────────────────────
   support:
     note: |-
-      <gold>☕ <yellow>Having fun here? This server runs on free time and coffee.
-      <gray>If you'd like to help keep it going: <button> <dark_gray>— completely optional, and thank you!
+      <gold>☕ <yellow>Hey <player>! Like the server?
+      <gray>If you like what I do, I'd be more than happy about your support, so I can keep doing it: <button>
     asked: "<gray>Want to support the server? <button> <dark_gray>— thank you!"
     none: "<gray>This server has no support link set up."
 

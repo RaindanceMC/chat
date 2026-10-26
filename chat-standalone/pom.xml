@@ -77,7 +77,7 @@
         <!-- 1.19.0: on a network @-mentions ping players on other servers, /announce and /ad show everywhere, polls are votable on every server (one vote per player), and /chat clear, freeze and slowmode apply on every server (a server starting later asks the others for the state). -->
         <!-- 1.19.1: messages from another server about a player (announce, ad, staff controls, votes, poll end, mentions) are ignored unless the player is on the server that sent them. -->
         <!-- 1.21.0: an ad stands out — ruled above and below with an "Ad" header, a two-note bell (cue chat:ad, rebindable), and the advertiser and text on everybody's action bar for 6 s. An owner's config still holding the old one-line ads.format gets the new look; a format of their own is kept. -->
-        <plugin.version>1.22.0</plugin.version>
+        <plugin.version>1.23.0</plugin.version>
     </properties>
 
     <dependencies>

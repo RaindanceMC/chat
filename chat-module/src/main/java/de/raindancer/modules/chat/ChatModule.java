@@ -50,7 +50,7 @@ import java.util.function.Predicate;
  */
 public final class ChatModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("chat", "Chat", "1.22.0")
+    private static final ModuleInfo INFO = ModuleInfo.of("chat", "Chat", "1.23.0")
             .describedAs("Chat format, @-mentions, a caps and repeat filter, a message cooldown, "
                     + "private chats, and /chat clear, freeze and slowmode")
             .by("Raindancer118");
@@ -210,15 +210,23 @@ public final class ChatModule implements FlexModule {
         context.closeWith(network::stop);
 
         var supportSettings = context.settings(SupportSettings.class, SupportSettings.DEFAULTS);
-        var support = new de.raindancer.modules.chat.service.SupportService(supportSettings.current(),
-                System::currentTimeMillis);
+        var supportReminders = new de.raindancer.modules.chat.store.SupportReminders(context.dataFolder());
+        supportReminders.load();
+        var supportWatch = supportReminders.watch();
+        context.closeWith(supportWatch::close);
+        var support = new de.raindancer.modules.chat.service.SupportService(supportSettings.current(), supportReminders);
         supportSettings.onChange(support::settings);
-        // Checked every minute; the service decides whether a note is due.
+        // Once a minute, the same beat Core counts playtime on.
         var supportNotes = de.raindancer.core.platform.util.Scheduling.globalTimer(context.plugin(), 1200, 1200,
-                task -> postSupportNote(server, context.core().messages(), support));
+                task -> {
+                    if (sendSupportNotes(server, core, support)) {
+                        de.raindancer.core.platform.util.Scheduling.async(context.plugin(), supportReminders::save);
+                    }
+                });
         if (supportNotes != null) {
             context.closeWith(supportNotes::cancel);
         }
+        context.closeWith(supportReminders::save);
 
         context.listener(new ChatListener(services, network));
         // From here on this module routes channel lines, so a module that could say its channel alone
@@ -237,16 +245,27 @@ public final class ChatModule implements FlexModule {
                 settings.current().capsFilterEnabled() ? "on" : "off");
     }
 
-    /** Each server posts to its own players, so on a network everybody sees it once. */
-    private static void postSupportNote(Server server, de.raindancer.core.ui.messages.Messages messages,
-                                        de.raindancer.modules.chat.service.SupportService support) {
-        if (!support.due(server.getOnlinePlayers().size())) {
-            return;
+    /** To each player on their own, once they have played long enough — never to everybody at once. */
+    private static boolean sendSupportNotes(Server server, de.raindancer.core.RainsCore core,
+                                         de.raindancer.modules.chat.service.SupportService support) {
+        boolean sent = false;
+        for (org.bukkit.entity.Player player : server.getOnlinePlayers()) {
+            java.util.UUID who = player.getUniqueId();
+            if (!core.playtime().isKnown(who) || de.raindancer.core.social.presence.Away.isAway(who)) {
+                continue;
+            }
+            long played = core.playtime().played(who).toMinutes();
+            if (!support.isDue(who, played)) {
+                continue;
+            }
+            var note = support.render(core.messages(), "chat.support.note", "player", player.getName());
+            if (note.isPresent()) {
+                support.reminded(who, played);
+                player.sendMessage(note.get());
+                sent = true;
+            }
         }
-        support.render(messages, "chat.support.note").ifPresent(note -> {
-            server.getOnlinePlayers().forEach(player -> player.sendMessage(note));
-            server.getConsoleSender().sendMessage(note);
-        });
+        return sent;
     }
 
     @Override

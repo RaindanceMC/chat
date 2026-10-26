@@ -3,6 +3,7 @@ package de.raindancer.modules.chat.service;
 import de.raindancer.core.ui.messages.Messages;
 import de.raindancer.modules.chat.ChatModule;
 import de.raindancer.modules.chat.SupportSettings;
+import de.raindancer.modules.chat.store.SupportReminders;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -34,30 +35,33 @@ class SupportNoteTest {
         return messages;
     }
 
-    private final SupportService support = new SupportService(
-            new SupportSettings(true, LINK, "Buy me a coffee", 60, 1), System::currentTimeMillis);
+    private SupportService support(SupportSettings settings) {
+        SupportReminders reminders = new SupportReminders(folder);
+        reminders.load();
+        return new SupportService(settings, reminders);
+    }
 
     @ParameterizedTest
     @ValueSource(strings = {"chat.support.note", "chat.support.asked"})
     @DisplayName("the note and /support's answer carry a button that opens the link")
     void buttonOpensTheLink(String key) {
         for (Messages.Tone tone : Messages.Tone.values()) {
-            Component note = support.render(messages(tone), key).orElseThrow();
+            Component note = support(new SupportSettings(true, LINK, "Buy me a coffee", 180, 0))
+                    .render(messages(tone), key, "player", "Steve").orElseThrow();
 
             assertThat(clicks(note)).as(tone + " " + key)
                     .containsExactly(ClickEvent.openUrl(LINK));
             String plain = PlainTextComponentSerializer.plainText().serialize(note);
-            assertThat(plain).contains("Buy me a coffee").doesNotContain("<link>", "<button>", "<click");
+            assertThat(plain).contains("Buy me a coffee").doesNotContain("<link>", "<button>", "<player>", "<click");
         }
     }
 
     @Test
     @DisplayName("a button text with markup in it is shown as typed, not run")
     void buttonTextIsText() {
-        SupportService sneaky = new SupportService(
-                new SupportSettings(true, LINK, "<click:run_command:'/op me'>x", 60, 1), System::currentTimeMillis);
+        SupportService sneaky = support(new SupportSettings(true, LINK, "<click:run_command:'/op me'>x", 180, 0));
 
-        Component note = sneaky.render(messages(Messages.Tone.values()[0]), "chat.support.note").orElseThrow();
+        Component note = sneaky.render(messages(Messages.Tone.values()[0]), "chat.support.note", "player", "Steve").orElseThrow();
 
         assertThat(clicks(note)).containsExactly(ClickEvent.openUrl(LINK));
         assertThat(PlainTextComponentSerializer.plainText().serialize(note)).contains("<click:run_command");
@@ -66,7 +70,7 @@ class SupportNoteTest {
     @Test
     @DisplayName("without a usable link there is nothing to render")
     void noLink() {
-        SupportService none = new SupportService(SupportSettings.DEFAULTS, System::currentTimeMillis);
+        SupportService none = support(SupportSettings.DEFAULTS);
 
         assertThat(none.render(messages(Messages.Tone.values()[0]), "chat.support.note")).isEmpty();
     }

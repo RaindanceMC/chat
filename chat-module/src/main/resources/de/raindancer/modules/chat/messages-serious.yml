@@ -13,5 +13,5 @@ chat:
     not-yourself: "<red>That would be yourself. You are already in this chat."
   support:
     note: |-
-      <gold>☕ <yellow>Support the server
-      <gray>If you would like to contribute to running costs: <button> <dark_gray>— entirely optional.
+      <gold>☕ <yellow>Hello <player>, thank you for playing here.
+      <gray>If you enjoy the server, you can support its running costs here — entirely optional: <button>

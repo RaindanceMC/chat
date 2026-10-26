@@ -10,17 +10,18 @@ import de.raindancer.core.data.settings.Topic;
 import org.bukkit.Material;
 
 /**
- * A support link — Buy Me a Coffee, Ko-fi, Patreon — dropped into chat every now and then, and {@code /support}
- * for anybody who wants it right away. A record of its own, like {@link NetworkChatSettings}: a separate decision.
+ * A support link — Buy Me a Coffee, Ko-fi, Patreon — in a short note to each player once they have played a while,
+ * and on {@code /support}. A record of its own, like
+ * {@link NetworkChatSettings}: a separate decision.
  */
 @Settings(id = "chat-support", topics = {
         @Topic(path = "chat/support", title = "Support link", icon = Material.EMERALD),
 })
 public record SupportSettings(
 
-        @In("chat/support") @Title("Post a support link now and then")
-        @Describe("Every so often, everybody online sees a short note with a button to the link below. /support "
-                + "shows it any time. Nothing is posted while the link is empty.")
+        @In("chat/support") @Title("Send players a support note")
+        @Describe("Once somebody has played long enough, they alone get a short note with a button to the link "
+                + "below — never everybody at once. /support shows it any time. Nothing is sent while the link is empty.")
         @Key("support.enabled")
         boolean enabled,
 
@@ -34,25 +35,27 @@ public record SupportSettings(
         @Key("support.button")
         String button,
 
-        @In("chat/support") @Title("Minutes between reminders") @Range(min = 5, max = 1440)
-        @Describe("How long between two notes. The first comes this long after the server starts.")
-        @Key("support.every-minutes")
-        int everyMinutes,
+        @In("chat/support") @Title("Minutes played before the note") @Range(min = 10, max = 100000)
+        @Describe("Playtime across the whole network, not since joining today. Somebody who is away gets it when "
+                + "they are back.")
+        @Key("support.after-minutes")
+        int afterMinutes,
 
-        @In("chat/support") @Title("Fewest players online") @Range(min = 1, max = 100)
-        @Describe("A note is held back until at least this many are online, then posted.")
-        @Key("support.fewest-players")
-        int fewestPlayers) {
+        @In("chat/support") @Title("Hours played before the next note") @Range(min = 0, max = 10000)
+        @Describe("More playtime after the last note before another. Zero: everybody gets it once, ever.")
+        @Key("support.again-after-hours")
+        int againAfterHours) {
 
     public static final String BUTTON = "Buy me a coffee";
 
-    public static final SupportSettings DEFAULTS = new SupportSettings(false, "", BUTTON, 60, 1);
+    public static final SupportSettings DEFAULTS = new SupportSettings(false, "", BUTTON, 180, 0);
 
-    public java.time.Duration interval() {
-        return java.time.Duration.ofMinutes(Math.max(5, Math.min(1440, everyMinutes)));
+    public long remindAfterMinutes() {
+        return Math.max(10, Math.min(100000, afterMinutes));
     }
 
-    public int fewest() {
-        return Math.max(1, Math.min(100, fewestPlayers));
+    /** Zero: never again. */
+    public long remindAgainMinutes() {
+        return Math.max(0, Math.min(10000, againAfterHours)) * 60L;
     }
 }

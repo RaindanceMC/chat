@@ -2,6 +2,7 @@ package de.raindancer.modules.chat.service;
 
 import de.raindancer.core.ui.messages.Messages;
 import de.raindancer.modules.chat.SupportSettings;
+import de.raindancer.modules.chat.store.SupportReminders;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -9,24 +10,24 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
 import java.util.Optional;
-import java.util.function.LongSupplier;
+import java.util.OptionalLong;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
- * When the support link is due in chat again. Only the timing and the link — who it is sent to is the module's.
+ * Who is due the support note: each player once they have played a while, never everybody at once. Who is online
+ * and how long they have played are the module's.
  */
 public final class SupportService {
 
     private static final Pattern WEB_LINK = Pattern.compile("https?://\\S+");
 
-    private final LongSupplier clock;
+    private final SupportReminders reminders;
     private volatile SupportSettings settings;
-    private volatile long lastPosted;
 
-    public SupportService(SupportSettings settings, LongSupplier clock) {
-        this.clock = clock;
+    public SupportService(SupportSettings settings, SupportReminders reminders) {
         this.settings = settings;
-        this.lastPosted = clock.getAsLong();
+        this.reminders = reminders;
     }
 
     public void settings(SupportSettings fresh) {
@@ -48,13 +49,38 @@ public final class SupportService {
         return written == null || written.isBlank() ? SupportSettings.BUTTON : written.strip();
     }
 
+    public boolean isDue(UUID who, long playedMinutes) {
+        SupportSettings live = settings;
+        if (!live.enabled() || link().isEmpty() || playedMinutes < live.remindAfterMinutes()) {
+            return false;
+        }
+        OptionalLong before = reminders.remindedAt(who);
+        if (before.isEmpty()) {
+            return true;
+        }
+        long again = live.remindAgainMinutes();
+        return again > 0 && playedMinutes - before.getAsLong() >= again;
+    }
+
+    public void reminded(UUID who, long playedMinutes) {
+        reminders.set(who, playedMinutes);
+    }
+
     /**
      * {@code key} with its {@code <button>} filled in; empty while there is no usable link. The button is built
      * here rather than written as a click tag in messages.yml: a placeholder inside a tag's argument leaks as raw
      * markup wherever the message is rendered without it.
      */
-    public Optional<Component> render(Messages messages, String key) {
-        return link().map(link -> messages.get(key, "button", button(link), "link", link));
+    public Optional<Component> render(Messages messages, String key, Object... more) {
+        return link().map(link -> {
+            Object[] values = new Object[more.length + 4];
+            values[0] = "button";
+            values[1] = button(link);
+            values[2] = "link";
+            values[3] = link;
+            System.arraycopy(more, 0, values, 4, more.length);
+            return messages.get(key, values);
+        });
     }
 
     private Component button(String link) {
@@ -62,19 +88,5 @@ public final class SupportService {
                 .decorate(TextDecoration.UNDERLINED)
                 .clickEvent(ClickEvent.openUrl(link))
                 .hoverEvent(HoverEvent.showText(Component.text("Opens " + link, NamedTextColor.GRAY)));
-    }
-
-    /** Whether to post now; a yes counts as posted, so the next comes one whole interval later. */
-    public synchronized boolean due(int online) {
-        SupportSettings live = settings;
-        if (!live.enabled() || link().isEmpty() || online < live.fewest()) {
-            return false;
-        }
-        long now = clock.getAsLong();
-        if (now - lastPosted < live.interval().toMillis()) {
-            return false;
-        }
-        lastPosted = now;
-        return true;
     }
 }
