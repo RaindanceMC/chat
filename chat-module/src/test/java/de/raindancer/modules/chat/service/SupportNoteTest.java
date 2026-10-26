@@ -42,8 +42,8 @@ class SupportNoteTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"chat.support.note", "chat.support.asked"})
-    @DisplayName("the note and /support's answer carry a button that opens the link")
+    @ValueSource(strings = {"chat.support.asked"})
+    @DisplayName("/support's answer at the console carries a button that opens the link")
     void buttonOpensTheLink(String key) {
         for (Messages.Tone tone : Messages.Tone.values()) {
             Component note = support(new SupportSettings(true, LINK, "Buy me a coffee", 180, 0))
@@ -61,7 +61,7 @@ class SupportNoteTest {
     void buttonTextIsText() {
         SupportService sneaky = support(new SupportSettings(true, LINK, "<click:run_command:'/op me'>x", 180, 0));
 
-        Component note = sneaky.render(messages(Messages.Tone.values()[0]), "chat.support.note", "player", "Steve").orElseThrow();
+        Component note = sneaky.render(messages(Messages.Tone.values()[0]), "chat.support.asked", "player", "Steve").orElseThrow();
 
         assertThat(clicks(note)).containsExactly(ClickEvent.openUrl(LINK));
         assertThat(PlainTextComponentSerializer.plainText().serialize(note)).contains("<click:run_command");
@@ -72,7 +72,7 @@ class SupportNoteTest {
     void noLink() {
         SupportService none = support(SupportSettings.DEFAULTS);
 
-        assertThat(none.render(messages(Messages.Tone.values()[0]), "chat.support.note")).isEmpty();
+        assertThat(none.render(messages(Messages.Tone.values()[0]), "chat.support.asked")).isEmpty();
     }
 
     private static List<ClickEvent> clicks(Component component) {

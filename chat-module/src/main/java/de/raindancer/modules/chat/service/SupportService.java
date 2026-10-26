@@ -49,6 +49,10 @@ public final class SupportService {
         return written == null || written.isBlank() ? SupportSettings.BUTTON : written.strip();
     }
 
+    public String signed() {
+        return settings.signed();
+    }
+
     public boolean isDue(UUID who, long playedMinutes) {
         SupportSettings live = settings;
         if (!live.enabled() || link().isEmpty() || playedMinutes < live.remindAfterMinutes()) {

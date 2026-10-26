@@ -1,0 +1,7 @@
+assets/rainschat/font/support.json
+assets/rainschat/items/coffee.json
+assets/rainschat/models/item/coffee.json
+assets/rainschat/textures/font/support/header.png
+assets/rainschat/textures/item/coffee.png
+assets/rainschat/textures/item/coffee.png.mcmeta
+pack.mcmeta

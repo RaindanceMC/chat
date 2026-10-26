@@ -1,0 +1,13 @@
+{
+ "providers": [
+  {
+   "type": "bitmap",
+   "file": "rainschat:font/support/header.png",
+   "ascent": 52,
+   "height": 60,
+   "chars": [
+    "\ue000"
+   ]
+  }
+ ]
+}

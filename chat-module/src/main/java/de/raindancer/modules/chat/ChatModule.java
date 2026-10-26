@@ -50,7 +50,7 @@ import java.util.function.Predicate;
  */
 public final class ChatModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("chat", "Chat", "1.23.1")
+    private static final ModuleInfo INFO = ModuleInfo.of("chat", "Chat", "1.24.0")
             .describedAs("Chat format, @-mentions, a caps and repeat filter, a message cooldown, "
                     + "private chats, and /chat clear, freeze and slowmode")
             .by("Raindancer118");
@@ -216,15 +216,17 @@ public final class ChatModule implements FlexModule {
         context.closeWith(supportWatch::close);
         var support = new de.raindancer.modules.chat.service.SupportService(supportSettings.current(), supportReminders);
         supportSettings.onChange(support::settings);
+        var supportNotes = new de.raindancer.modules.chat.service.SupportNotes(context.plugin(), server, core, support);
+        de.raindancer.modules.chat.service.SupportPack.contribute(context.plugin(), core);
         // Once a minute, the same beat Core counts playtime on.
-        var supportNotes = de.raindancer.core.platform.util.Scheduling.globalTimer(context.plugin(), 1200, 1200,
+        var supportTimer = de.raindancer.core.platform.util.Scheduling.globalTimer(context.plugin(), 1200, 1200,
                 task -> {
-                    if (sendSupportNotes(server, core, support)) {
+                    if (supportNotes.tick()) {
                         de.raindancer.core.platform.util.Scheduling.async(context.plugin(), supportReminders::save);
                     }
                 });
-        if (supportNotes != null) {
-            context.closeWith(supportNotes::cancel);
+        if (supportTimer != null) {
+            context.closeWith(supportTimer::cancel);
         }
         context.closeWith(supportReminders::save);
 
@@ -238,34 +240,11 @@ public final class ChatModule implements FlexModule {
 
         // The commands were registered during bootstrap, long before any of this existed, and have
         // been answering "not started yet" until now. See ChatCommands.
-        ChatCommands.ready(services, support);
+        ChatCommands.ready(services, support, supportNotes);
 
         log.info("Chat is up: format \"{}\", mentions {}, caps filter {}.",
                 settings.current().format(), settings.current().mentionsEnabled() ? "on" : "off",
                 settings.current().capsFilterEnabled() ? "on" : "off");
-    }
-
-    /** To each player on their own, once they have played long enough — never to everybody at once. */
-    private static boolean sendSupportNotes(Server server, de.raindancer.core.RainsCore core,
-                                         de.raindancer.modules.chat.service.SupportService support) {
-        boolean sent = false;
-        for (org.bukkit.entity.Player player : server.getOnlinePlayers()) {
-            java.util.UUID who = player.getUniqueId();
-            if (!core.playtime().isKnown(who) || de.raindancer.core.social.presence.Away.isAway(who)) {
-                continue;
-            }
-            long played = core.playtime().played(who).toMinutes();
-            if (!support.isDue(who, played)) {
-                continue;
-            }
-            var note = support.render(core.messages(), "chat.support.note", "player", player.getName());
-            if (note.isPresent()) {
-                support.reminded(who, played);
-                player.sendMessage(note.get());
-                sent = true;
-            }
-        }
-        return sent;
     }
 
     @Override
@@ -276,6 +255,9 @@ public final class ChatModule implements FlexModule {
     @Override
     public void disable() {
         de.raindancer.core.ui.chat.ChatChannels.releaseRouting(this);
+        if (de.raindancer.core.RainsCore.isAvailable()) {
+            de.raindancer.modules.chat.service.SupportPack.withdraw(de.raindancer.core.RainsCore.get());
+        }
         de.raindancer.core.ui.chat.ChatChannels.unwatch(channelWatcher);
         ChatCommands.stopped();
         if (history != null) {

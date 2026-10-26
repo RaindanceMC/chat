@@ -72,10 +72,20 @@ chat:
 
   # ── the support link, now and then and on /support ───────────────────────
   support:
-    note: |-
-      <gold>☕ <yellow>Hey <player>, thanks for playing here!
-      <gray>I build and run this server myself, in my free time. If you're enjoying it, a coffee would honestly make my day and helps keep it online and growing: <button>
-      <gray>No pressure at all — you being here already means a lot. <red>❤
+    notice: "<#C8A27A>☕ <#F3E3CC>You've got a new message! <open>"
+    open: "<#E8B98A><u>[Read it]</u>"
+    open-tooltip: "<#D9BFA0>A little note from the owner"
+    window:
+      title: "<#C8A27A>☕ <gradient:#F3E3CC:#C8A27A>A little note for you</gradient>"
+      greeting: |-
+        <#F3E3CC><bold>Hey <player>!</bold>
+        <#D9BFA0>Thanks for playing here.
+      text: "<#D9BFA0>I build and run this server myself, in my free time. If you're enjoying it, a coffee would honestly make my day — and it helps keep the server online and growing."
+      signature: "<#E8B98A><italic>— <name>"
+      footer: "<#C8A27A>No pressure at all. You being here already means a lot. <#E57373>❤"
+      buy: "<gradient:#F3E3CC:#E8B98A>☕ <button></gradient>"
+      buy-tooltip: "<#D9BFA0>Opens <#F3E3CC><link>"
+      later: "<#E8D9C4>Not right now"
     asked: "<gray>Thanks for wanting to support the server! <button> <dark_gray>— every coffee helps keep it running. <red>❤"
     none: "<gray>This server has no support link set up."
 

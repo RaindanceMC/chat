@@ -19,6 +19,7 @@ public final class ChatCommands {
 
     private static volatile ChatServices services;
     private static volatile de.raindancer.modules.chat.service.SupportService support;
+    private static volatile de.raindancer.modules.chat.service.SupportNotes supportNotes;
 
     private ChatCommands() {
     }
@@ -50,9 +51,9 @@ public final class ChatCommands {
                         .taking("<message> — broadcast it as an ad, if the server sells them")
                         .needing(de.raindancer.modules.chat.util.PermissionNodes.AD),
 
-                ModuleCommand.of("support", "Shows the server's support link",
+                ModuleCommand.of("support", "Opens the support window",
                                 new de.raindancer.modules.chat.command.SupportCommand(ChatCommands::require,
-                                        ChatCommands::requireSupport))
+                                        ChatCommands::requireSupport, () -> supportNotes))
                         .aliased("donate")
                         .needing(de.raindancer.modules.chat.util.PermissionNodes.SUPPORT),
 
@@ -74,8 +75,10 @@ public final class ChatCommands {
     }
 
     /** Called when the module enables, after which the commands work. */
-    static void ready(ChatServices live, de.raindancer.modules.chat.service.SupportService supportLink) {
+    static void ready(ChatServices live, de.raindancer.modules.chat.service.SupportService supportLink,
+                      de.raindancer.modules.chat.service.SupportNotes notes) {
         support = supportLink;
+        supportNotes = notes;
         services = live;
     }
 
@@ -83,6 +86,7 @@ public final class ChatCommands {
     static void stopped() {
         services = null;
         support = null;
+        supportNotes = null;
     }
 
     public static boolean isRunning() {

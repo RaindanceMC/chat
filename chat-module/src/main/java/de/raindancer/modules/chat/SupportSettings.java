@@ -44,11 +44,21 @@ public record SupportSettings(
         @In("chat/support") @Title("Hours played before the next note") @Range(min = 0, max = 10000)
         @Describe("More playtime after the last note before another. Zero: everybody gets it once, ever.")
         @Key("support.again-after-hours")
-        int againAfterHours) {
+        int againAfterHours,
+
+        @In("chat/support") @Title("Signed by")
+        @Describe("Your name under the note in the window, e.g. your Minecraft name. Empty: unsigned.")
+        @Key("support.signed")
+        String signed) {
+
+    /** Every setting from before the signature, unsigned. */
+    public SupportSettings(boolean enabled, String link, String button, int afterMinutes, int againAfterHours) {
+        this(enabled, link, button, afterMinutes, againAfterHours, "");
+    }
 
     public static final String BUTTON = "Buy me a coffee";
 
-    public static final SupportSettings DEFAULTS = new SupportSettings(false, "", BUTTON, 180, 0);
+    public static final SupportSettings DEFAULTS = new SupportSettings(false, "", BUTTON, 180, 0, "");
 
     public long remindAfterMinutes() {
         return Math.max(10, Math.min(100000, afterMinutes));

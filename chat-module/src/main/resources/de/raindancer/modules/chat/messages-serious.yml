@@ -12,7 +12,13 @@ chat:
   private:
     not-yourself: "<red>That would be yourself. You are already in this chat."
   support:
-    note: |-
-      <gold>☕ <yellow>Thank you for playing here, <player>.
-      <gray>This server is run privately and paid for out of pocket. If you enjoy it, you can contribute to its running costs here: <button>
-      <dark_gray>Entirely optional — thank you for being part of it.
+    notice: "<#C8A27A>☕ <#F3E3CC>You have a new message. <open>"
+    window:
+      title: "<#C8A27A>☕ <#F3E3CC>Supporting the server"
+      greeting: |-
+        <#F3E3CC><bold>Hello <player>,</bold>
+        <#D9BFA0>thank you for playing here.
+      text: "<#D9BFA0>This server is run privately and paid for out of pocket. If you enjoy it, you can contribute to its running costs."
+      signature: "<#E8B98A>— <name>"
+      footer: "<#C8A27A>Entirely optional — thank you for being part of it."
+      later: "<#E8D9C4>Close"
