@@ -11,3 +11,7 @@ chat:
     length: "<red>The duration must be between 10 seconds and an hour."
   private:
     not-yourself: "<red>That would be yourself. You are already in this chat."
+  support:
+    note: |-
+      <gold>☕ <yellow>Support the server
+      <gray>If you would like to contribute to running costs: <button> <dark_gray>— entirely optional.

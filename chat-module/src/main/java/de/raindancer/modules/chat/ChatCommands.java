@@ -18,6 +18,7 @@ import java.util.List;
 public final class ChatCommands {
 
     private static volatile ChatServices services;
+    private static volatile de.raindancer.modules.chat.service.SupportService support;
 
     private ChatCommands() {
     }
@@ -49,6 +50,12 @@ public final class ChatCommands {
                         .taking("<message> — broadcast it as an ad, if the server sells them")
                         .needing(de.raindancer.modules.chat.util.PermissionNodes.AD),
 
+                ModuleCommand.of("support", "Shows the server's support link",
+                                new de.raindancer.modules.chat.command.SupportCommand(ChatCommands::require,
+                                        ChatCommands::requireSupport))
+                        .aliased("donate")
+                        .needing(de.raindancer.modules.chat.util.PermissionNodes.SUPPORT),
+
                 ModuleCommand.of("chathistory", "Shows chat that happened while you were away",
                                 new ChatHistoryCommand(ChatCommands::require))
                         // Not "chatlog": that is moderation's staff search through Core's chat log.
@@ -67,17 +74,27 @@ public final class ChatCommands {
     }
 
     /** Called when the module enables, after which the commands work. */
-    static void ready(ChatServices live) {
+    static void ready(ChatServices live, de.raindancer.modules.chat.service.SupportService supportLink) {
+        support = supportLink;
         services = live;
     }
 
     /** Called when it stops, so a command run afterwards refuses rather than using half-shut services. */
     static void stopped() {
         services = null;
+        support = null;
     }
 
     public static boolean isRunning() {
         return services != null;
+    }
+
+    private static de.raindancer.modules.chat.service.SupportService requireSupport() {
+        var live = support;
+        if (live == null) {
+            throw new IllegalStateException("the chat module is not running");
+        }
+        return live;
     }
 
     private static ChatServices require() {

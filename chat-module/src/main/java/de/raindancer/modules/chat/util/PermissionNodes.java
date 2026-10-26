@@ -45,6 +45,9 @@ public final class PermissionNodes {
     /** {@code /ad} — a paid broadcast, when the server has switched ads on. */
     public static final String AD = "chat.ad";
 
+    /** {@code /support} — the server's support link. */
+    public static final String SUPPORT = "chat.support";
+
     private PermissionNodes() {
     }
 
@@ -66,7 +69,8 @@ public final class PermissionNodes {
                         PermissionDefault.OP),
                 new Permission(POLL, "Start a poll in chat", PermissionDefault.OP),
                 new Permission(AD, "Pay to broadcast an ad with /ad", PermissionDefault.TRUE),
-                new Permission(POLL_MANAGE, "End anybody's poll early", PermissionDefault.OP));
+                new Permission(POLL_MANAGE, "End anybody's poll early", PermissionDefault.OP),
+                new Permission(SUPPORT, "See the server's support link with /support", PermissionDefault.TRUE));
     }
 
     /** @return how many were added, for the line in the log */

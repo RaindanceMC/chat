@@ -18,6 +18,7 @@ class GuideTest {
                 .module("chat")
                 .settings(ChatSettings.class, ChatSettings.DEFAULTS)
                 .settings(NetworkChatSettings.class, NetworkChatSettings.DEFAULTS)
+                .settings(SupportSettings.class, SupportSettings.DEFAULTS)
                 .commands(new ChatModule().commands().stream().map(ModuleCommand::name).toList())
                 .problems()).isEmpty();
     }

@@ -70,6 +70,14 @@ chat:
     not-charged: "<red>The ad could not be paid for, so it was not sent."
     paid: "<gray>Your ad went out. <white><price></white> paid."
 
+  # ── the support link, now and then and on /support ───────────────────────
+  support:
+    note: |-
+      <gold>☕ <yellow>Having fun here? This server runs on free time and coffee.
+      <gray>If you'd like to help keep it going: <button> <dark_gray>— completely optional, and thank you!
+    asked: "<gray>Want to support the server? <button> <dark_gray>— thank you!"
+    none: "<gray>This server has no support link set up."
+
   # ── @-mentions ────────────────────────────────────────────────────────────
   mention:
     pinged: "<yellow>⚡ <white><player></white> <yellow>mentioned you: <gray><text>"

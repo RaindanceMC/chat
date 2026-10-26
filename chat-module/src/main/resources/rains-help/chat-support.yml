@@ -1,0 +1,20 @@
+id: chat-support
+title: Supporting the server
+summary: "Where to chip in, if you'd like to."
+intro: |
+  Servers cost money and time. If you enjoy this one and want to help, here's how — and if not, that's fine too.
+icon: EMERALD
+category: Chat & community
+order: 14
+module: chat
+when: chat-support:support.enabled
+permission: chat.support
+aliases: [support, donate, coffee]
+keywords: [donation, tip, buymeacoffee]
+commands: [support]
+related: [chat]
+sections:
+  - question: How can I support the server?
+    title: The support link
+    text: |
+      {cmd:/support} shows the link, with a button to open it. Every <white>{setting:chat-support:support.every-minutes|minutes}</white> it is also posted in chat for everybody. Supporting is optional and gets you nothing in game.

@@ -50,7 +50,7 @@ import java.util.function.Predicate;
  */
 public final class ChatModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("chat", "Chat", "1.21.0")
+    private static final ModuleInfo INFO = ModuleInfo.of("chat", "Chat", "1.22.0")
             .describedAs("Chat format, @-mentions, a caps and repeat filter, a message cooldown, "
                     + "private chats, and /chat clear, freeze and slowmode")
             .by("Raindancer118");
@@ -209,6 +209,17 @@ public final class ChatModule implements FlexModule {
         network.listen();
         context.closeWith(network::stop);
 
+        var supportSettings = context.settings(SupportSettings.class, SupportSettings.DEFAULTS);
+        var support = new de.raindancer.modules.chat.service.SupportService(supportSettings.current(),
+                System::currentTimeMillis);
+        supportSettings.onChange(support::settings);
+        // Checked every minute; the service decides whether a note is due.
+        var supportNotes = de.raindancer.core.platform.util.Scheduling.globalTimer(context.plugin(), 1200, 1200,
+                task -> postSupportNote(server, context.core().messages(), support));
+        if (supportNotes != null) {
+            context.closeWith(supportNotes::cancel);
+        }
+
         context.listener(new ChatListener(services, network));
         // From here on this module routes channel lines, so a module that could say its channel alone
         // (moderation's staff chat) stands down and a line is said once.
@@ -219,11 +230,23 @@ public final class ChatModule implements FlexModule {
 
         // The commands were registered during bootstrap, long before any of this existed, and have
         // been answering "not started yet" until now. See ChatCommands.
-        ChatCommands.ready(services);
+        ChatCommands.ready(services, support);
 
         log.info("Chat is up: format \"{}\", mentions {}, caps filter {}.",
                 settings.current().format(), settings.current().mentionsEnabled() ? "on" : "off",
                 settings.current().capsFilterEnabled() ? "on" : "off");
+    }
+
+    /** Each server posts to its own players, so on a network everybody sees it once. */
+    private static void postSupportNote(Server server, de.raindancer.core.ui.messages.Messages messages,
+                                        de.raindancer.modules.chat.service.SupportService support) {
+        if (!support.due(server.getOnlinePlayers().size())) {
+            return;
+        }
+        support.render(messages, "chat.support.note").ifPresent(note -> {
+            server.getOnlinePlayers().forEach(player -> player.sendMessage(note));
+            server.getConsoleSender().sendMessage(note);
+        });
     }
 
     @Override
