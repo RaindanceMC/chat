@@ -81,10 +81,12 @@ public final class SupportStaff {
             say(sender, "chat.support.admin.unknown-player", "player", args[1]);
             return;
         }
-        int coffees = args.length > 2 ? number(args[2]).orElse(1) : 1;
-        var now = core.supporters().credit(who.get(), coffees, Instant.now());
+        // An amount given by hand is what the owner says reached them: no fees taken off.
+        long cents = args.length > 2 ? BmcWebhook.centsOf(args[2]) : 0;
+        var now = core.supporters().credit(who.get(), 1, cents, cents, Instant.now());
         Scheduling.async(plugin, core.supporters()::save);
-        say(sender, "chat.support.admin.given", "player", args[1], "coffees", String.valueOf(now.coffees()));
+        say(sender, "chat.support.admin.given", "player", args[1],
+                "amount", String.format(java.util.Locale.ROOT, "%.2f", now.cents() / 100.0));
     }
 
     private void take(CommandSender sender, String[] args) {

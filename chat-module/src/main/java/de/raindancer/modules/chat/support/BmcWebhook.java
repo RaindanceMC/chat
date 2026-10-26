@@ -24,11 +24,16 @@ import java.util.regex.Pattern;
  */
 public final class BmcWebhook {
 
-    public enum Kind { SUPPORT, REFUND, OTHER }
+    public enum Kind { SUPPORT, REFUND, MEMBERSHIP_ENDED, OTHER }
 
     /** @param code the player's code from the message, normalised to {@code BEAN-XXXXX} */
-    public record Donation(Kind kind, String eventId, String supporterName, int coffees, String amount,
-                           String message, Optional<String> code) {
+    /**
+     * @param cents       the amount in the currency's smallest unit, before fees; 0 when none was given
+     * @param supporterId Buy Me a Coffee's own id for the supporter, empty when the event has none
+     * @param membership  whether it is about a membership — a start, a renewal or an end
+     */
+    public record Donation(Kind kind, String eventId, String supporterName, int coffees, String amount, long cents,
+                           String message, Optional<String> code, String supporterId, boolean membership) {
     }
 
     /** Letters and digits nobody misreads: no B/8, O/0, I/1, S/5, G, Q, Z/2. */
@@ -97,7 +102,19 @@ public final class BmcWebhook {
         String amount = first(data, "amount", "total_amount", "support_coffee_price");
         return Optional.of(new Donation(kindOf(type), id, first(data, "supporter_name", "payer_name", "name"),
                 number(first(data, "coffee_count", "number_of_coffees", "support_coffees")),
-                currency.isEmpty() ? amount : (amount + " " + currency).strip(), message, codeIn(message)));
+                currency.isEmpty() ? amount : (amount + " " + currency).strip(), centsOf(amount), message,
+                codeIn(message), first(data, "supporter_id", "payer_id", "member_id"),
+                type != null && type.toLowerCase(Locale.ROOT).contains("membership")));
+    }
+
+    /** "4.5" → 450. Anything that is not a positive amount is 0. */
+    public static long centsOf(String amount) {
+        try {
+            double value = Double.parseDouble(amount.strip().replace(',', '.'));
+            return value > 0 ? Math.round(value * 100) : 0;
+        } catch (NumberFormatException | NullPointerException notAnAmount) {
+            return 0;
+        }
     }
 
     public static Optional<String> codeIn(String message) {
@@ -112,6 +129,10 @@ public final class BmcWebhook {
         String event = type == null ? "" : type.toLowerCase(Locale.ROOT);
         if (event.contains("refund")) {
             return Kind.REFUND;
+        }
+        if (event.contains("membership") && (event.contains("cancel") || event.contains("ended")
+                || event.contains("expired") || event.contains("deleted"))) {
+            return Kind.MEMBERSHIP_ENDED;
         }
         if (event.endsWith(".created") || event.endsWith(".started") || event.endsWith(".renewed")
                 || event.contains("purchase") || event.contains("coffee")) {

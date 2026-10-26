@@ -72,7 +72,51 @@ public record SupportSettings(
         @Describe("Which address the webhook port is opened on. 0.0.0.0 is every address; 127.0.0.1 only this "
                 + "machine, for a proxy on the same host.")
         @Key("support.webhook-host")
-        String webhookHost) {
+        String webhookHost,
+
+        @In("chat/support") @Title("Fees in percent")
+        @Describe("What Buy Me a Coffee and the card company keep of every payment, in percent — 5 % platform and "
+                + "2.9 % card by default. Only used to estimate what reached you, e.g. for skins per euro.")
+        @Key("support.fee-percent")
+        String feePercent,
+
+        @In("chat/support") @Title("Fixed fee per payment")
+        @Describe("Taken from every payment on top of the percentage, e.g. 0.30.")
+        @Key("support.fee-fixed")
+        String feeFixed) {
+
+    public static final String FEE_PERCENT = "7.9";
+    public static final String FEE_FIXED = "0.30";
+
+    /** Every setting from before the fees: the default fees. */
+    public SupportSettings(boolean enabled, String link, String button, int afterMinutes, int againAfterHours,
+                           String signed, boolean rewards, int webhookPort, String webhookHost) {
+        this(enabled, link, button, afterMinutes, againAfterHours, signed, rewards, webhookPort, webhookHost,
+                FEE_PERCENT, FEE_FIXED);
+    }
+
+    /** What of {@code cents} reaches the owner. */
+    public long net(long cents) {
+        return netOf(cents, feePercent, feeFixed);
+    }
+
+    public static long netOf(long cents, String percent, String fixed) {
+        double share = number(percent);
+        long fixedCents = Math.round(number(fixed) * 100);
+        return Math.max(0, cents - Math.round(cents * share / 100) - fixedCents);
+    }
+
+    private static double number(String written) {
+        if (written == null) {
+            return 0;
+        }
+        String cleaned = written.replace(',', '.').replaceAll("[^0-9.]", "");
+        try {
+            return cleaned.isEmpty() ? 0 : Math.max(0, Double.parseDouble(cleaned));
+        } catch (NumberFormatException notANumber) {
+            return 0;
+        }
+    }
 
     /** Every setting from before the webhook: not listening. */
     public SupportSettings(boolean enabled, String link, String button, int afterMinutes, int againAfterHours,
@@ -87,7 +131,8 @@ public record SupportSettings(
 
     public static final String BUTTON = "Buy me a coffee";
 
-    public static final SupportSettings DEFAULTS = new SupportSettings(false, "", BUTTON, 180, 0, "", false, 0, "0.0.0.0");
+    public static final SupportSettings DEFAULTS = new SupportSettings(false, "", BUTTON, 180, 0, "", false, 0, "0.0.0.0",
+            FEE_PERCENT, FEE_FIXED);
 
     public long remindAfterMinutes() {
         return Math.max(10, Math.min(100000, afterMinutes));

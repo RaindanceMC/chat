@@ -15,7 +15,7 @@ Needs Java 25 and read access to `packages.tstieh.de` (server ids `packages-rele
 
 ## Plugins
 
-- `chat-standalone/target/RainsChat-1.25.0.jar` — also published as `de.raindancer.modules:chat-standalone:1.25.0`
+- `chat-standalone/target/RainsChat-1.26.0.jar` — also published as `de.raindancer.modules:chat-standalone:1.26.0`
 
 ## Versions
 

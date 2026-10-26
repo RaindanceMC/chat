@@ -66,6 +66,7 @@ class BmcWebhookTest {
         assertThat(donation.supporterName()).isEqualTo("Alex");
         assertThat(donation.coffees()).isEqualTo(2);
         assertThat(donation.amount()).isEqualTo("5 EUR");
+        assertThat(donation.cents()).isEqualTo(500);
         assertThat(donation.code()).contains("BEAN-K7M4P");
     }
 
@@ -79,17 +80,23 @@ class BmcWebhookTest {
         assertThat(donation.supporterName()).isEqualTo("Sam");
         assertThat(donation.coffees()).isEqualTo(3);
         assertThat(donation.amount()).isEqualTo("15");
+        assertThat(donation.cents()).isEqualTo(1500);
         assertThat(donation.code()).isEmpty();
     }
 
     @Test
-    @DisplayName("memberships and extras count as support; refunds and cancellations do not")
+    @DisplayName("memberships and extras count as support; a membership's end is told apart; refunds are not support")
     void kinds() {
         assertThat(kindOf("membership.started")).isEqualTo(BmcWebhook.Kind.SUPPORT);
         assertThat(kindOf("extra_purchase.created")).isEqualTo(BmcWebhook.Kind.SUPPORT);
         assertThat(kindOf("donation.refunded")).isEqualTo(BmcWebhook.Kind.REFUND);
-        assertThat(kindOf("membership.cancelled")).isEqualTo(BmcWebhook.Kind.OTHER);
+        assertThat(kindOf("membership.cancelled")).isEqualTo(BmcWebhook.Kind.MEMBERSHIP_ENDED);
+        assertThat(kindOf("membership.ended")).isEqualTo(BmcWebhook.Kind.MEMBERSHIP_ENDED);
         assertThat(kindOf("membership.updated")).isEqualTo(BmcWebhook.Kind.OTHER);
+        assertThat(BmcWebhook.read(CURRENT.replace("donation.created", "membership.started"), null).orElseThrow()
+                .membership()).isTrue();
+        assertThat(BmcWebhook.read(CURRENT, null).orElseThrow().membership()).isFalse();
+        assertThat(BmcWebhook.read(CURRENT, null).orElseThrow().supporterId()).isEqualTo("77");
     }
 
     private static BmcWebhook.Kind kindOf(String type) {
@@ -105,6 +112,17 @@ class BmcWebhookTest {
         assertThat(BmcWebhook.codeIn("BEAN-ACD3")).isEmpty();
         assertThat(BmcWebhook.codeIn("JELLYBEAN-ACD345")).isEmpty();
         assertThat(BmcWebhook.codeIn(null)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("amounts with cents, as text or as numbers, become whole cents; nonsense becomes none")
+    void cents() {
+        assertThat(BmcWebhook.centsOf("4.5")).isEqualTo(450);
+        assertThat(BmcWebhook.centsOf("12.99")).isEqualTo(1299);
+        assertThat(BmcWebhook.centsOf("3")).isEqualTo(300);
+        assertThat(BmcWebhook.centsOf("")).isZero();
+        assertThat(BmcWebhook.centsOf("free")).isZero();
+        assertThat(BmcWebhook.centsOf("-5")).isZero();
     }
 
     @Test

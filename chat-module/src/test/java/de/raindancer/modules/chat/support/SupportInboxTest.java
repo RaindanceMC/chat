@@ -24,7 +24,8 @@ class SupportInboxTest {
     }
 
     private static BmcWebhook.Donation donation(String id, String name) {
-        return new BmcWebhook.Donation(BmcWebhook.Kind.SUPPORT, id, name, 1, "5 EUR", "", java.util.Optional.empty());
+        return new BmcWebhook.Donation(BmcWebhook.Kind.SUPPORT, id, name, 1, "5 EUR", 500, "", java.util.Optional.empty(),
+                "", false);
     }
 
     @Test
@@ -47,7 +48,9 @@ class SupportInboxTest {
         inbox.add(donation("2", "Sam"), now.plusSeconds(60));
 
         assertThat(inbox.waiting()).extracting(SupportInbox.Waiting::supporterName).containsExactly("Alex", "Sam");
-        assertThat(inbox.take(1).orElseThrow().supporterName()).isEqualTo("Alex");
+        var first = inbox.take(1).orElseThrow();
+        assertThat(first.supporterName()).isEqualTo("Alex");
+        assertThat(first.cents()).isEqualTo(500);
         assertThat(inbox.waiting()).extracting(SupportInbox.Waiting::supporterName).containsExactly("Sam");
         assertThat(inbox.take(5)).isEmpty();
         inbox.save();

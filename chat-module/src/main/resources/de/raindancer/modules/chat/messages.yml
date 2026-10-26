@@ -94,14 +94,14 @@ chat:
       <#C8A27A>☕ <#F3E3CC><bold>Thank you so much, <player>!</bold>
       <#D9BFA0>Your coffee arrived. The <#C8A27A>☕</#C8A27A> badge by your name and the coffee-bean trail in /cosmetics are yours now.
     admin:
-      usage: "<gray>/support admin inbox <dark_gray>|</dark_gray> give <player> [coffees] <dark_gray>|</dark_gray> take <player> <dark_gray>|</dark_gray> assign <number> <player> <dark_gray>|</dark_gray> dismiss <number>"
+      usage: "<gray>/support admin inbox <dark_gray>|</dark_gray> give <player> [amount] <dark_gray>|</dark_gray> take <player> <dark_gray>|</dark_gray> assign <number> <player> <dark_gray>|</dark_gray> dismiss <number>"
       inbox-empty: "<gray>No donations are waiting — every one so far came with a code."
       inbox-head: "<#C8A27A>☕ <#F3E3CC>Donations without a code <gray>(forgotten after 90 days)"
       inbox-line: "<gray><number>. <white><name></white> — <amount>, <coffees> coffee(s), <when>"
       not-here: "<red>Donations arrive on the server that receives the webhook. Use this there."
       unknown-player: "<red>Nobody called <white><player></white> has played here."
       no-such: "<red>There is no waiting donation number <white><number></white>."
-      given: "<green><player> is a supporter now <gray>(<coffees> coffee(s) in all)."
+      given: "<green><player> is a supporter now <gray>(<amount> given in all)."
       taken: "<yellow><player> is no supporter any more."
       not-one: "<gray><player> is not a supporter."
       assigned: "<green>Donation <number> went to <white><player></white>."

@@ -36,11 +36,43 @@ class SupportDeskTest {
         codes.load();
         inbox = new SupportInbox(folder);
         inbox.load();
-        desk = new SupportDesk(supporters, codes, inbox, () -> now);
+        desk = new SupportDesk(supporters, codes, inbox, () -> now, cents -> cents - 100);
     }
 
     private static BmcWebhook.Donation donation(String id, BmcWebhook.Kind kind, int coffees, String code) {
-        return new BmcWebhook.Donation(kind, id, "Alex", coffees, "5 EUR", "msg", Optional.ofNullable(code));
+        return new BmcWebhook.Donation(kind, id, "Alex", coffees, "5 EUR", 500, "msg", Optional.ofNullable(code), "", false);
+    }
+
+    private static BmcWebhook.Donation from(String id, BmcWebhook.Kind kind, String supporterId, String code,
+                                            boolean membership) {
+        return new BmcWebhook.Donation(kind, id, "Alex", 1, "5 EUR", 500, "msg", Optional.ofNullable(code),
+                supporterId, membership);
+    }
+
+    @Test
+    @DisplayName("once a supporter's code was seen, their later supports find them without one — a renewal too")
+    void knownSupporter() {
+        String code = codes.codeOf(player);
+        desk.receive(from("1", BmcWebhook.Kind.SUPPORT, "bmc-77", code, false));
+
+        assertThat(desk.receive(from("2", BmcWebhook.Kind.SUPPORT, "bmc-77", null, false)))
+                .isEqualTo(SupportDesk.Outcome.CREDITED);
+        assertThat(supporters.of(player).orElseThrow().supports()).isEqualTo(2);
+        assertThat(inbox.waiting()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("a membership counts as support and is remembered as running until it ends")
+    void membership() {
+        String code = codes.codeOf(player);
+        desk.receive(from("1", BmcWebhook.Kind.SUPPORT, "bmc-77", code, true));
+        assertThat(supporters.of(player).orElseThrow().member()).isTrue();
+
+        assertThat(desk.receive(from("2", BmcWebhook.Kind.MEMBERSHIP_ENDED, "bmc-77", null, true)))
+                .isEqualTo(SupportDesk.Outcome.MEMBERSHIP_ENDED);
+        assertThat(supporters.of(player).orElseThrow().member()).isFalse();
+        assertThat(desk.receive(from("3", BmcWebhook.Kind.MEMBERSHIP_ENDED, "bmc-somebody-else", null, true)))
+                .as("nobody known").isEqualTo(SupportDesk.Outcome.IGNORED);
     }
 
     @Test
@@ -52,6 +84,8 @@ class SupportDeskTest {
                 .isEqualTo(SupportDesk.Outcome.CREDITED);
 
         assertThat(supporters.of(player).orElseThrow().coffees()).isEqualTo(3);
+        assertThat(supporters.of(player).orElseThrow().cents()).isEqualTo(500);
+        assertThat(supporters.of(player).orElseThrow().netCents()).as("after the fees").isEqualTo(400);
         assertThat(inbox.waiting()).isEmpty();
     }
 
@@ -85,6 +119,7 @@ class SupportDeskTest {
         assertThat(desk.assign(1, player)).isPresent();
 
         assertThat(supporters.of(player).orElseThrow().coffees()).isEqualTo(2);
+        assertThat(supporters.of(player).orElseThrow().netCents()).isEqualTo(400);
         assertThat(inbox.waiting()).isEmpty();
         assertThat(desk.assign(1, player)).isEmpty();
     }

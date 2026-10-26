@@ -13,18 +13,22 @@ import java.util.function.Supplier;
  */
 public final class SupportDesk {
 
-    public enum Outcome { CREDITED, WAITING, ALREADY_HANDLED, IGNORED }
+    public enum Outcome { CREDITED, WAITING, MEMBERSHIP_ENDED, ALREADY_HANDLED, IGNORED }
 
     private final Supporters supporters;
     private final SupportCodes codes;
     private final SupportInbox inbox;
     private final Supplier<Instant> clock;
+    /** What of an amount reaches the owner, after the platform's and the card's fees. */
+    private final java.util.function.LongUnaryOperator net;
 
-    public SupportDesk(Supporters supporters, SupportCodes codes, SupportInbox inbox, Supplier<Instant> clock) {
+    public SupportDesk(Supporters supporters, SupportCodes codes, SupportInbox inbox, Supplier<Instant> clock,
+                       java.util.function.LongUnaryOperator net) {
         this.supporters = supporters;
         this.codes = codes;
         this.inbox = inbox;
         this.clock = clock;
+        this.net = net;
     }
 
     public synchronized Outcome receive(BmcWebhook.Donation donation) {
@@ -32,18 +36,29 @@ public final class SupportDesk {
             return Outcome.ALREADY_HANDLED;
         }
         Outcome outcome;
-        if (donation.kind() != BmcWebhook.Kind.SUPPORT) {
-            outcome = Outcome.IGNORED;
-        } else {
-            Optional<UUID> player = donation.code().flatMap(codes::playerOf);
+        Optional<UUID> player = donation.code().flatMap(codes::playerOf).or(() -> inbox.knownAs(donation.supporterId()));
+        if (donation.kind() == BmcWebhook.Kind.MEMBERSHIP_ENDED) {
             if (player.isPresent()) {
-                supporters.credit(player.get(), donation.coffees(), clock.get());
+                supporters.member(player.get(), false);
                 supporters.save();
-                outcome = Outcome.CREDITED;
+                outcome = Outcome.MEMBERSHIP_ENDED;
             } else {
-                inbox.add(donation, clock.get());
-                outcome = Outcome.WAITING;
+                outcome = Outcome.IGNORED;
             }
+        } else if (donation.kind() != BmcWebhook.Kind.SUPPORT) {
+            outcome = Outcome.IGNORED;
+        } else if (player.isPresent()) {
+            supporters.credit(player.get(), donation.coffees(), donation.cents(),
+                    net.applyAsLong(donation.cents()), clock.get());
+            if (donation.membership()) {
+                supporters.member(player.get(), true);
+            }
+            inbox.know(donation.supporterId(), player.get());
+            supporters.save();
+            outcome = Outcome.CREDITED;
+        } else {
+            inbox.add(donation, clock.get());
+            outcome = Outcome.WAITING;
         }
         inbox.save();
         return outcome;
@@ -53,7 +68,8 @@ public final class SupportDesk {
     public synchronized Optional<SupportInbox.Waiting> assign(int number, UUID player) {
         Optional<SupportInbox.Waiting> taken = inbox.take(number);
         taken.ifPresent(waiting -> {
-            supporters.credit(player, waiting.coffees(), clock.get());
+            supporters.credit(player, waiting.coffees(), waiting.cents(), net.applyAsLong(waiting.cents()),
+                    clock.get());
             supporters.save();
             inbox.save();
         });

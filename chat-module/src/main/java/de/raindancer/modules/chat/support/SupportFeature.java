@@ -67,7 +67,8 @@ public final class SupportFeature {
         inbox.load();
 
         var support = new SupportService(settings.current(), reminders);
-        var desk = new SupportDesk(core.supporters(), codes, inbox, Instant::now);
+        var desk = new SupportDesk(core.supporters(), codes, inbox, Instant::now,
+                cents -> settings.current().net(cents));
         var notes = new SupportNotes(plugin, server, core, support, codes);
         var feature = new SupportFeature[1];
         var staff = new SupportStaff(plugin, server, core,
@@ -157,6 +158,7 @@ public final class SupportFeature {
                 case CREDITED -> "credited to the player whose code it carried";
                 case WAITING -> "no known code — waiting in /support admin inbox";
                 case ALREADY_HANDLED -> "a repeat, already handled";
+                case MEMBERSHIP_ENDED -> "a membership ended";
                 case IGNORED -> "not a support (" + donation.kind() + "), nothing changed";
             });
         } catch (RuntimeException failure) {

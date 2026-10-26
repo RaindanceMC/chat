@@ -26,12 +26,14 @@ public final class SupportInbox {
     public static final Duration KEPT = Duration.ofDays(90);
     private static final int REMEMBERED_EVENTS = 1000;
 
-    public record Waiting(String eventId, Instant at, String supporterName, int coffees, String amount) {
+    public record Waiting(String eventId, Instant at, String supporterName, int coffees, String amount, long cents) {
     }
 
     private final YamlStore store;
     private final LinkedHashSet<String> seen = new LinkedHashSet<>();
     private final List<Waiting> waiting = new ArrayList<>();
+    /** Buy Me a Coffee's supporter id to the player it turned out to be, once a code told. */
+    private final java.util.Map<String, java.util.UUID> known = new java.util.HashMap<>();
 
     public SupportInbox(Path dataFolder) {
         this(new YamlStore(dataFolder.resolve("support-inbox.yml")));
@@ -48,6 +50,17 @@ public final class SupportInbox {
         }
         seen.clear();
         seen.addAll(read.get().getStringList("seen"));
+        known.clear();
+        ConfigurationSection people = read.get().getConfigurationSection("known");
+        if (people != null) {
+            for (String id : people.getKeys(false)) {
+                try {
+                    known.put(id, java.util.UUID.fromString(people.getString(id, "")));
+                } catch (IllegalArgumentException handEdited) {
+                    // skipped
+                }
+            }
+        }
         waiting.clear();
         ConfigurationSection list = read.get().getConfigurationSection("waiting");
         if (list != null) {
@@ -58,13 +71,24 @@ public final class SupportInbox {
                 }
                 try {
                     waiting.add(new Waiting(one.getString("event", id), Instant.parse(one.getString("at", "")),
-                            one.getString("name", ""), one.getInt("coffees", 1), one.getString("amount", "")));
+                            one.getString("name", ""), one.getInt("coffees", 1), one.getString("amount", ""),
+                            one.getLong("cents")));
                 } catch (DateTimeParseException handEdited) {
                     // skipped, not fatal
                 }
             }
         }
         waiting.sort(Comparator.comparing(Waiting::at));
+    }
+
+    public synchronized Optional<java.util.UUID> knownAs(String supporterId) {
+        return supporterId == null || supporterId.isBlank() ? Optional.empty() : Optional.ofNullable(known.get(supporterId));
+    }
+
+    public synchronized void know(String supporterId, java.util.UUID player) {
+        if (supporterId != null && !supporterId.isBlank()) {
+            known.put(supporterId, player);
+        }
     }
 
     /** True the first time an event id is seen, false for a retry of it. */
@@ -80,7 +104,7 @@ public final class SupportInbox {
 
     public synchronized void add(BmcWebhook.Donation donation, Instant at) {
         waiting.add(new Waiting(donation.eventId(), at, donation.supporterName(), donation.coffees(),
-                donation.amount()));
+                donation.amount(), donation.cents()));
     }
 
     public synchronized List<Waiting> waiting() {
@@ -105,6 +129,8 @@ public final class SupportInbox {
     public synchronized boolean save() {
         return store.write(yaml -> {
             yaml.set("seen", List.copyOf(seen));
+            yaml.set("known", null);
+            known.forEach((id, player) -> yaml.set("known." + id, player.toString()));
             yaml.set("waiting", null);
             for (int i = 0; i < waiting.size(); i++) {
                 Waiting one = waiting.get(i);
@@ -114,6 +140,7 @@ public final class SupportInbox {
                 yaml.set(base + ".name", one.supporterName());
                 yaml.set(base + ".coffees", one.coffees());
                 yaml.set(base + ".amount", one.amount());
+                yaml.set(base + ".cents", one.cents());
             }
         });
     }
