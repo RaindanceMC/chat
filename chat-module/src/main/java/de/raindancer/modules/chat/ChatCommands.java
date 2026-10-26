@@ -20,6 +20,7 @@ public final class ChatCommands {
     private static volatile ChatServices services;
     private static volatile de.raindancer.modules.chat.service.SupportService support;
     private static volatile de.raindancer.modules.chat.service.SupportNotes supportNotes;
+    private static volatile de.raindancer.modules.chat.support.SupportStaff supportStaff;
 
     private ChatCommands() {
     }
@@ -53,8 +54,10 @@ public final class ChatCommands {
 
                 ModuleCommand.of("support", "Opens the support window",
                                 new de.raindancer.modules.chat.command.SupportCommand(ChatCommands::require,
-                                        ChatCommands::requireSupport, () -> supportNotes))
+                                        ChatCommands::requireSupport, () -> supportNotes, () -> supportStaff))
                         .aliased("donate")
+                        .taking("(nothing) — opens the support window",
+                                "admin inbox|give|take|assign|dismiss — staff: supporter standing by hand")
                         .needing(de.raindancer.modules.chat.util.PermissionNodes.SUPPORT),
 
                 ModuleCommand.of("chathistory", "Shows chat that happened while you were away",
@@ -76,9 +79,11 @@ public final class ChatCommands {
 
     /** Called when the module enables, after which the commands work. */
     static void ready(ChatServices live, de.raindancer.modules.chat.service.SupportService supportLink,
-                      de.raindancer.modules.chat.service.SupportNotes notes) {
+                      de.raindancer.modules.chat.service.SupportNotes notes,
+                      de.raindancer.modules.chat.support.SupportStaff staff) {
         support = supportLink;
         supportNotes = notes;
+        supportStaff = staff;
         services = live;
     }
 
@@ -87,6 +92,7 @@ public final class ChatCommands {
         services = null;
         support = null;
         supportNotes = null;
+        supportStaff = null;
     }
 
     public static boolean isRunning() {

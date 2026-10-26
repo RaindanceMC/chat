@@ -24,12 +24,15 @@ public final class SupportNotes {
     private final Server server;
     private final RainsCore core;
     private final SupportService support;
+    private final de.raindancer.modules.chat.support.SupportCodes codes;
 
-    public SupportNotes(Plugin plugin, Server server, RainsCore core, SupportService support) {
+    public SupportNotes(Plugin plugin, Server server, RainsCore core, SupportService support,
+                        de.raindancer.modules.chat.support.SupportCodes codes) {
         this.plugin = plugin;
         this.server = server;
         this.core = core;
         this.support = support;
+        this.codes = codes;
     }
 
     /** @return whether anybody was told, so there is something to save */
@@ -37,6 +40,13 @@ public final class SupportNotes {
         boolean told = false;
         for (Player player : server.getOnlinePlayers()) {
             UUID who = player.getUniqueId();
+            var supporter = core.supporters().of(who);
+            if (supporter.isPresent() && !supporter.get().thanked()) {
+                core.supporters().thanked(who);
+                player.sendMessage(SupportLetter.thanks(core.messages(), player.getName()));
+                core.effects().play(who, de.raindancer.core.ui.effect.Cues.NOTIFY);
+                told = true;
+            }
             if (!core.playtime().isKnown(who) || Away.isAway(who)) {
                 continue;
             }
@@ -65,9 +75,19 @@ public final class SupportNotes {
         if (link.isEmpty()) {
             return false;
         }
-        boolean wearing = core.resourcePacks().isWearing(player.getUniqueId());
-        SupportWindow.show(player, SupportLetter.of(core.messages(), player.getName(), support.buttonText(),
-                link.get(), support.signed(), wearing), link.get(), wearing);
+        UUID who = player.getUniqueId();
+        boolean wearing = core.resourcePacks().isWearing(who);
+        SupportLetter letter = SupportLetter.of(core.messages(), player.getName(), support.buttonText(),
+                link.get(), support.signed(), wearing);
+        if (core.supporters().isSupporter(who)) {
+            letter = letter.forSupporter();
+        } else if (support.current().rewards()) {
+            letter = letter.forCode(codes.codeOf(who));
+            if (codes.isDirty()) {
+                Scheduling.async(plugin, codes::save);
+            }
+        }
+        SupportWindow.show(player, letter, link.get(), wearing);
         return true;
     }
 }

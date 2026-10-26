@@ -17,4 +17,9 @@ sections:
   - question: How can I support the server?
     title: The support link
     text: |
-      {cmd:/support} opens a little window with the link. After <white>{setting:chat-support:support.after-minutes|minutes}</white> of playtime you also get a message in chat pointing at it, just you. Supporting is optional and gets you nothing in game.
+      {cmd:/support} opens a little window with the link. After <white>{setting:chat-support:support.after-minutes|minutes}</white> of playtime you also get a message in chat pointing at it, just you. Supporting is optional.
+  - question: Do supporters get anything?
+    title: A little thank-you
+    when: chat-support:support.rewards
+    text: |
+      The window shows your own code. Write it in your coffee's message, and a <#C8A27A>☕</#C8A27A> badge by your name and a coffee-bean trail in {cmd:/cosmetics} are yours — only ever cosmetic, nothing that helps in the game. You can hide the badge in Cosmetics.

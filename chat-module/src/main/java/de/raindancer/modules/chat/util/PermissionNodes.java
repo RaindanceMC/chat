@@ -48,6 +48,9 @@ public final class PermissionNodes {
     /** {@code /support} — the server's support link. */
     public static final String SUPPORT = "chat.support";
 
+    /** {@code /support admin} — give, take and assign supporter standing. */
+    public static final String SUPPORT_ADMIN = "chat.support.admin";
+
     private PermissionNodes() {
     }
 
@@ -70,7 +73,9 @@ public final class PermissionNodes {
                 new Permission(POLL, "Start a poll in chat", PermissionDefault.OP),
                 new Permission(AD, "Pay to broadcast an ad with /ad", PermissionDefault.TRUE),
                 new Permission(POLL_MANAGE, "End anybody's poll early", PermissionDefault.OP),
-                new Permission(SUPPORT, "See the server's support link with /support", PermissionDefault.TRUE));
+                new Permission(SUPPORT, "See the server's support link with /support", PermissionDefault.TRUE),
+                new Permission(SUPPORT_ADMIN, "Give, take and assign supporter standing with /support admin",
+                        PermissionDefault.OP));
     }
 
     /** @return how many were added, for the line in the log */

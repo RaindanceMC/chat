@@ -79,6 +79,33 @@ class SupportLetterTest {
     }
 
     @Test
+    @DisplayName("a player who is not a supporter yet sees their code and a copy button; a supporter a thank-you")
+    void codeOrThanks() {
+        for (Messages.Tone tone : Messages.Tone.values()) {
+            SupportLetter asking = SupportLetter.of(messages(tone), "Steve", "x", LINK, "", false)
+                    .forCode("BEAN-K7M4P");
+            assertThat(plain(asking.reward().orElseThrow())).as(tone.name()).contains("BEAN-K7M4P")
+                    .doesNotContain("<code>", "<#");
+            assertThat(plain(asking.copy().orElseThrow())).contains("BEAN-K7M4P");
+
+            SupportLetter thanking = SupportLetter.of(messages(tone), "Steve", "x", LINK, "", false).forSupporter();
+            assertThat(plain(thanking.reward().orElseThrow())).as(tone.name()).isNotBlank().doesNotContain("<#");
+            assertThat(thanking.copy()).isEmpty();
+        }
+        assertThat(SupportLetter.of(messages(Messages.Tone.values()[0]), "Steve", "x", LINK, "", false).reward())
+                .as("nothing about rewards until told which").isEmpty();
+    }
+
+    @Test
+    @DisplayName("the thank-you after a coffee renders in both tones with the player's name")
+    void thanks() {
+        for (Messages.Tone tone : Messages.Tone.values()) {
+            assertThat(plain(SupportLetter.thanks(messages(tone), "Steve"))).as(tone.name()).contains("Steve")
+                    .doesNotContain("<player>", "<#");
+        }
+    }
+
+    @Test
     @DisplayName("signed with the owner's name when one is set, as typed; unsigned when it is empty")
     void signature() {
         Messages messages = messages(Messages.Tone.values()[0]);

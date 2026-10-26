@@ -50,7 +50,7 @@ import java.util.function.Predicate;
  */
 public final class ChatModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("chat", "Chat", "1.24.0")
+    private static final ModuleInfo INFO = ModuleInfo.of("chat", "Chat", "1.25.0")
             .describedAs("Chat format, @-mentions, a caps and repeat filter, a message cooldown, "
                     + "private chats, and /chat clear, freeze and slowmode")
             .by("Raindancer118");
@@ -209,26 +209,7 @@ public final class ChatModule implements FlexModule {
         network.listen();
         context.closeWith(network::stop);
 
-        var supportSettings = context.settings(SupportSettings.class, SupportSettings.DEFAULTS);
-        var supportReminders = new de.raindancer.modules.chat.store.SupportReminders(context.dataFolder());
-        supportReminders.load();
-        var supportWatch = supportReminders.watch();
-        context.closeWith(supportWatch::close);
-        var support = new de.raindancer.modules.chat.service.SupportService(supportSettings.current(), supportReminders);
-        supportSettings.onChange(support::settings);
-        var supportNotes = new de.raindancer.modules.chat.service.SupportNotes(context.plugin(), server, core, support);
-        de.raindancer.modules.chat.service.SupportPack.contribute(context.plugin(), core);
-        // Once a minute, the same beat Core counts playtime on.
-        var supportTimer = de.raindancer.core.platform.util.Scheduling.globalTimer(context.plugin(), 1200, 1200,
-                task -> {
-                    if (supportNotes.tick()) {
-                        de.raindancer.core.platform.util.Scheduling.async(context.plugin(), supportReminders::save);
-                    }
-                });
-        if (supportTimer != null) {
-            context.closeWith(supportTimer::cancel);
-        }
-        context.closeWith(supportReminders::save);
+        var supportFeature = de.raindancer.modules.chat.support.SupportFeature.start(context, server, core);
 
         context.listener(new ChatListener(services, network));
         // From here on this module routes channel lines, so a module that could say its channel alone
@@ -240,7 +221,7 @@ public final class ChatModule implements FlexModule {
 
         // The commands were registered during bootstrap, long before any of this existed, and have
         // been answering "not started yet" until now. See ChatCommands.
-        ChatCommands.ready(services, support, supportNotes);
+        ChatCommands.ready(services, supportFeature.support(), supportFeature.notes(), supportFeature.staff());
 
         log.info("Chat is up: format \"{}\", mentions {}, caps filter {}.",
                 settings.current().format(), settings.current().mentionsEnabled() ? "on" : "off",

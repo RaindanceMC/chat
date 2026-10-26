@@ -17,12 +17,14 @@ public final class SupportCommand implements IChatCommand {
     private final Supplier<ChatServices> services;
     private final Supplier<SupportService> support;
     private final Supplier<SupportNotes> window;
+    private final Supplier<de.raindancer.modules.chat.support.SupportStaff> staff;
 
     public SupportCommand(Supplier<ChatServices> services, Supplier<SupportService> support,
-                          Supplier<SupportNotes> window) {
+                          Supplier<SupportNotes> window, Supplier<de.raindancer.modules.chat.support.SupportStaff> staff) {
         this.services = services;
         this.support = support;
         this.window = window;
+        this.staff = staff;
     }
 
     @Override
@@ -33,6 +35,11 @@ public final class SupportCommand implements IChatCommand {
     @Override
     public void execute(CommandSourceStack source, String[] args) {
         ChatServices live = services.get();
+        if (args.length > 0 && args[0].equalsIgnoreCase("admin")
+                && source.getSender().hasPermission(PermissionNodes.SUPPORT_ADMIN) && staff.get() != null) {
+            staff.get().run(source.getSender(), java.util.Arrays.copyOfRange(args, 1, args.length));
+            return;
+        }
         SupportNotes notes = window.get();
         if (source.getSender() instanceof Player player && notes != null) {
             if (!notes.open(player)) {
@@ -47,6 +54,15 @@ public final class SupportCommand implements IChatCommand {
 
     @Override
     public Collection<String> suggest(CommandSourceStack source, String[] args) {
+        if (!source.getSender().hasPermission(PermissionNodes.SUPPORT_ADMIN)) {
+            return List.of();
+        }
+        if (args.length <= 1) {
+            return List.of("admin");
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("admin")) {
+            return de.raindancer.modules.chat.support.SupportStaff.SUBCOMMANDS;
+        }
         return List.of();
     }
 

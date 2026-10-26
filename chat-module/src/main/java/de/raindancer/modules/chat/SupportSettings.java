@@ -49,16 +49,45 @@ public record SupportSettings(
         @In("chat/support") @Title("Signed by")
         @Describe("Your name under the note in the window, e.g. your Minecraft name. Empty: unsigned.")
         @Key("support.signed")
-        String signed) {
+        String signed,
+
+        @In("chat/support") @Title("Thank supporters with a badge and a trail")
+        @Describe("The window shows each player a code for their coffee's message; a coffee with it gives them a "
+                + "☕ badge by their name and the coffee-bean trail in /cosmetics. Needs one server receiving the "
+                + "webhook (below). Only ever cosmetic: anything that helps in the game would break Minecraft's "
+                + "usage guidelines.")
+        @Key("support.rewards")
+        boolean rewards,
+
+        @In("chat/support") @Title("Receive Buy Me a Coffee webhooks on port") @Range(min = 0, max = 65535)
+        @Describe("On ONE server of the network: the port Buy Me a Coffee's webhook is passed to, at /bmc. Zero: "
+                + "this server does not listen. The secret goes in plugins/RainsChat/bmc-webhook.secret, never "
+                + "here. A donation with a player's /support code in its message makes them a supporter "
+                + "everywhere; one without waits for /support admin inbox. Stored: who supported, when and how "
+                + "many coffees; a donation nobody claims is forgotten after 90 days. Say so in your privacy notice.")
+        @Key("support.webhook-port")
+        int webhookPort,
+
+        @In("chat/support") @Title("Listen on address")
+        @Describe("Which address the webhook port is opened on. 0.0.0.0 is every address; 127.0.0.1 only this "
+                + "machine, for a proxy on the same host.")
+        @Key("support.webhook-host")
+        String webhookHost) {
+
+    /** Every setting from before the webhook: not listening. */
+    public SupportSettings(boolean enabled, String link, String button, int afterMinutes, int againAfterHours,
+                           String signed) {
+        this(enabled, link, button, afterMinutes, againAfterHours, signed, false, 0, "0.0.0.0");
+    }
 
     /** Every setting from before the signature, unsigned. */
     public SupportSettings(boolean enabled, String link, String button, int afterMinutes, int againAfterHours) {
-        this(enabled, link, button, afterMinutes, againAfterHours, "");
+        this(enabled, link, button, afterMinutes, againAfterHours, "", false, 0, "0.0.0.0");
     }
 
     public static final String BUTTON = "Buy me a coffee";
 
-    public static final SupportSettings DEFAULTS = new SupportSettings(false, "", BUTTON, 180, 0, "");
+    public static final SupportSettings DEFAULTS = new SupportSettings(false, "", BUTTON, 180, 0, "", false, 0, "0.0.0.0");
 
     public long remindAfterMinutes() {
         return Math.max(10, Math.min(100000, afterMinutes));
@@ -67,5 +96,9 @@ public record SupportSettings(
     /** Zero: never again. */
     public long remindAgainMinutes() {
         return Math.max(0, Math.min(10000, againAfterHours)) * 60L;
+    }
+
+    public String listenOn() {
+        return webhookHost == null || webhookHost.isBlank() ? "0.0.0.0" : webhookHost.strip();
     }
 }

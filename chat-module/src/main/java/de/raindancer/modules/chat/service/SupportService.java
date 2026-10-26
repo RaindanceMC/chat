@@ -49,6 +49,10 @@ public final class SupportService {
         return written == null || written.isBlank() ? SupportSettings.BUTTON : written.strip();
     }
 
+    public SupportSettings current() {
+        return settings;
+    }
+
     public String signed() {
         return settings.signed();
     }

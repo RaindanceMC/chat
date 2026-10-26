@@ -28,14 +28,21 @@ public final class SupportWindow {
                 .description(DialogBody.plainMessage(letter.greeting(), TEXT_WIDTH - 40)).build());
         body.add(DialogBody.plainMessage(letter.text(), TEXT_WIDTH));
         letter.signature().ifPresent(signature -> body.add(DialogBody.plainMessage(signature, TEXT_WIDTH)));
+        letter.reward().ifPresent(reward -> body.add(DialogBody.plainMessage(reward, TEXT_WIDTH)));
         body.add(DialogBody.plainMessage(letter.footer(), TEXT_WIDTH));
 
         ActionButton buy = ActionButton.builder(letter.buy()).tooltip(letter.buyTooltip()).width(BUTTON)
                 .action(DialogAction.staticAction(ClickEvent.openUrl(link))).build();
         ActionButton later = ActionButton.builder(letter.later()).width(BUTTON).build();
+        List<ActionButton> actions = new ArrayList<>(List.of(buy));
+        if (letter.copy().isPresent() && letter.code().isPresent()) {
+            // Every button closes the window: with the client's "none" its footer button would not close it either.
+            actions.add(ActionButton.builder(letter.copy().get()).tooltip(letter.copyTooltip()).width(BUTTON)
+                    .action(DialogAction.staticAction(ClickEvent.copyToClipboard(letter.code().get()))).build());
+        }
         player.showDialog(Dialog.create(factory -> factory.empty()
                 .base(DialogBase.builder(letter.title()).canCloseWithEscape(true).pause(false)
                         .afterAction(DialogBase.DialogAfterAction.CLOSE).body(body).build())
-                .type(DialogType.multiAction(List.of(buy)).exitAction(later).columns(1).build())));
+                .type(DialogType.multiAction(actions).exitAction(later).columns(1).build())));
     }
 }

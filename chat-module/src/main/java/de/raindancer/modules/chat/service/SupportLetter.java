@@ -12,10 +12,13 @@ import java.util.Optional;
  *
  * @param header    the painted header, only for a player wearing the server's pack; anybody else would see a box
  * @param signature the owner's name under the note, when they set one
+ * @param reward    the thank-you on offer and the player's code for it — or, for a supporter, thanks for theirs
+ * @param copy      the button copying the code; {@code code} is what it copies
  */
 public record SupportLetter(Component title, Optional<Component> header, Component greeting, Component text,
                            Optional<Component> signature, Component footer, Component buy, Component buyTooltip,
-                           Component later) {
+                           Component later, Optional<Component> reward, Optional<Component> copy,
+                           Optional<String> code, Messages messages) {
 
     /** The chat module's font in the pack; {@link #HEADER_GLYPH} is the painted header (art/support_art.py). */
     public static final Key FONT = Key.key(SupportPack.NAMESPACE, "support");
@@ -37,7 +40,31 @@ public record SupportLetter(Component title, Optional<Component> header, Compone
                 messages.get("chat.support.window.footer"),
                 messages.get("chat.support.window.buy", "button", buttonText),
                 messages.get("chat.support.window.buy-tooltip", "link", link),
-                messages.get("chat.support.window.later"));
+                messages.get("chat.support.window.later"),
+                Optional.empty(), Optional.empty(), Optional.empty(), messages);
+    }
+
+    public Component copyTooltip() {
+        return messages.get("chat.support.window.copy-tooltip");
+    }
+
+    /** For somebody who has not supported yet: what a coffee with {@code code} in its message brings. */
+    public SupportLetter forCode(String code) {
+        return new SupportLetter(title, header, greeting, text, signature, footer, buy, buyTooltip, later,
+                Optional.of(messages.get("chat.support.window.code", "code", code)),
+                Optional.of(messages.get("chat.support.window.copy", "code", code)), Optional.of(code), messages);
+    }
+
+    /** For a supporter: thanks for theirs, and no code to copy. */
+    public SupportLetter forSupporter() {
+        return new SupportLetter(title, header, greeting, text, signature, footer, buy, buyTooltip, later,
+                Optional.of(messages.get("chat.support.window.supporter")), Optional.empty(), Optional.empty(),
+                messages);
+    }
+
+    /** Said in chat once a coffee with their code has arrived. */
+    public static Component thanks(Messages messages, String player) {
+        return messages.get("chat.support.thanks", "player", player);
     }
 
     /** The one line in chat: there is a message, and {@code open} to read it. */
