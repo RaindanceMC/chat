@@ -22,8 +22,8 @@ chat:
       signature: "<#E8B98A>— <name>"
       footer: "<#C8A27A>Entirely optional — thank you for being part of it."
       later: "<#E8D9C4>Close"
-      code: "<#D9BFA0>Include <#F3E3CC><bold><code></bold><#D9BFA0> in your message to receive a <#C8A27A>☕</#C8A27A> supporter badge and a coffee-bean particle trail."
+      code: "<#D9BFA0>Include <#F3E3CC><bold><code></bold><#D9BFA0> in your message to receive a <#C8A27A>☕</#C8A27A> supporter badge, a coffee-bean particle trail and weapon skins."
       supporter: "<#C8A27A>☕ <#F3E3CC>You are a supporter. Thank you."
     thanks: |-
       <#C8A27A>☕ <#F3E3CC><bold>Thank you, <player>.</bold>
-      <#D9BFA0>Your support has been received. The <#C8A27A>☕</#C8A27A> badge and the coffee-bean trail in /cosmetics are now available to you.
+      <#D9BFA0>Your support has been received. The <#C8A27A>☕</#C8A27A> badge, the coffee-bean trail and weapon skins in /cosmetics are now available to you.
