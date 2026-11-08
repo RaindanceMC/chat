@@ -28,7 +28,27 @@ public final class ChatCommand implements IChatCommand {
 
     private static final List<String> STAFF = List.of("clear", "freeze", "slowmode");
     private static final List<String> EVERYBODY = List.of("private", "public");
-    private static final String USAGE = "/chat team|all|private|public|clear|freeze|slowmode <seconds|off>|say <player> <message>";
+
+    /** What this sender may type after {@code /chat}: nothing is offered that they would be refused. */
+    private static String usageFor(CommandSender sender) {
+        List<String> parts = new ArrayList<>();
+        if (sender instanceof Player) {
+            parts.add("team");
+            parts.add("all");
+            if (sender.hasPermission(PermissionNodes.PRIVATE)) {
+                parts.addAll(EVERYBODY);
+            }
+        }
+        if (sender.hasPermission(PermissionNodes.ADMIN)) {
+            parts.add("clear");
+            parts.add("freeze");
+            parts.add("slowmode <seconds|off>");
+        }
+        if (isConsole(sender)) {
+            parts.add("say <player> <message>");
+        }
+        return parts.isEmpty() ? "/chat" : "/chat " + String.join("|", parts);
+    }
 
     /** Opens the channel picker — a seam, because a real menu needs a running server. */
     private java.util.function.BiConsumer<ChatServices, Player> channelMenu =
@@ -57,7 +77,7 @@ public final class ChatCommand implements IChatCommand {
             if (sender instanceof Player player) {
                 channelMenu.accept(live, player);
             } else {
-                live.messages().send(sender, "chat.usage", "usage", USAGE);
+                live.messages().send(sender, "chat.usage", "usage", usageFor(sender));
             }
             return;
         }
@@ -92,7 +112,7 @@ public final class ChatCommand implements IChatCommand {
             return;
         }
         if (!STAFF.contains(subcommand)) {
-            live.messages().send(sender, "chat.usage", "usage", USAGE);
+            live.messages().send(sender, "chat.usage", "usage", usageFor(sender));
             return;
         }
         if (!sender.hasPermission(PermissionNodes.ADMIN)) {
@@ -225,6 +245,11 @@ public final class ChatCommand implements IChatCommand {
         }
         if (args[0].equalsIgnoreCase("private") && mayTalkPrivately) {
             return PrivateChatSubcommand.suggest(services.get(), (Player) sender, args);
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("say") && isConsole(sender)) {
+            String typed = args[1].toLowerCase(Locale.ROOT);
+            return services.get().server().getOnlinePlayers().stream().map(Player::getName)
+                    .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(typed)).toList();
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("slowmode") && staff) {
             return List.of("off", "5", "10", "30");

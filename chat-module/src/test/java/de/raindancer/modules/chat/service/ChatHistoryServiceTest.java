@@ -145,4 +145,20 @@ class ChatHistoryServiceTest {
             assertThat(service(off).notifyOnJoin()).isFalse();
         }
     }
+
+    @Test
+    @DisplayName("leaving asks the debouncer to write instead of writing on the calling thread, and is remembered at once")
+    void leavingIsDeferred() {
+        ChatHistoryService service = service(ChatSettings.DEFAULTS);
+        java.util.concurrent.atomic.AtomicInteger asked = new java.util.concurrent.atomic.AtomicInteger();
+        service.writeWith(asked::incrementAndGet);
+        UUID tom = UUID.randomUUID();
+        now.set(5L);
+
+        service.markLeft(tom);
+
+        assertThat(asked.get()).isEqualTo(1);
+        assertThat(store.lastQuit(tom)).contains(5L);
+        assertThat(Files.exists(dataFolder.resolve("history.yml"))).isFalse();
+    }
 }

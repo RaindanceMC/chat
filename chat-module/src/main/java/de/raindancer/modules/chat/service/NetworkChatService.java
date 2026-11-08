@@ -13,6 +13,7 @@ import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -42,6 +43,7 @@ public final class NetworkChatService {
 
     private final Supplier<Optional<ServerLink>> link;
     private final NetworkBus bus;
+    private final Executor publisher;
     private final BooleanSupplier onNetwork;
     private final Predicate<UUID> mutedHere;
     private final Consumer<Component> broadcast;
@@ -65,6 +67,17 @@ public final class NetworkChatService {
     public NetworkChatService(Supplier<Optional<ServerLink>> link, NetworkBus bus, BooleanSupplier onNetwork,
                               Predicate<UUID> mutedHere, Consumer<Component> broadcast,
                               BiFunction<String, Component, Component> tagged, NetworkChatSettings settings) {
+        this(link, bus, onNetwork, Runnable::run, mutedHere, broadcast, tagged, settings);
+    }
+
+    /**
+     * @param publisher where a line is published from — a single-thread executor keeps lines in order and keeps
+     *                  the database write off the chat thread; the default runs it in place
+     */
+    public NetworkChatService(Supplier<Optional<ServerLink>> link, NetworkBus bus, BooleanSupplier onNetwork,
+                              Executor publisher, Predicate<UUID> mutedHere, Consumer<Component> broadcast,
+                              BiFunction<String, Component, Component> tagged, NetworkChatSettings settings) {
+        this.publisher = publisher;
         this.link = link;
         this.bus = bus;
         this.onNetwork = onNetwork;
@@ -107,7 +120,9 @@ public final class NetworkChatService {
             payload.addProperty("text", text);
             payload.addProperty("tag", tagOnNetwork(now));
             payload.addProperty("line", GSON.serialize(shown));
-            bus.publish(TOPIC, sender.toString(), JSON.toJson(payload));
+            String key = sender.toString();
+            String body = JSON.toJson(payload);
+            publisher.execute(() -> bus.publish(TOPIC, key, body));
             return;
         }
         link.get().ifPresent(live -> live.send(TOPIC, Map.of(

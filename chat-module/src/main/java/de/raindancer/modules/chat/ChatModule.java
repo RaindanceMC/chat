@@ -50,7 +50,7 @@ import java.util.function.Predicate;
  */
 public final class ChatModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("chat", "Chat", "1.27.0")
+    private static final ModuleInfo INFO = ModuleInfo.of("chat", "Chat", "1.28.0")
             .describedAs("Chat format, @-mentions, a caps and repeat filter, a message cooldown, "
                     + "private chats, and /chat clear, freeze and slowmode")
             .by("Raindancer118");
@@ -63,6 +63,9 @@ public final class ChatModule implements FlexModule {
     private ChatStyleStore styles;
     private ChatServices services;
     private de.raindancer.modules.chat.store.PanelFeed feed;
+    private java.util.concurrent.ScheduledExecutorService historyPool;
+    private de.raindancer.modules.chat.store.DebouncedFlush historyWriting;
+    private java.util.concurrent.ExecutorService networkPool;
 
     /** What the Pelican panel's chat page shows. */
     private static final int PANEL_FEED_LINES = 100;
@@ -123,6 +126,13 @@ public final class ChatModule implements FlexModule {
         var historyWatch = history.watch();
         context.closeWith(historyWatch::close);
         ChatHistoryService chatHistory = new ChatHistoryService(history, settings.current());
+        historyPool = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(task -> {
+            Thread thread = new Thread(task, "chat-history-writer");
+            thread.setDaemon(true);
+            return thread;
+        });
+        historyWriting = new de.raindancer.modules.chat.store.DebouncedFlush(historyPool, 2_000, history::flush);
+        chatHistory.writeWith(historyWriting::request);
 
         de.raindancer.modules.chat.service.PollService polls = new de.raindancer.modules.chat.service.PollService(
                 context.plugin(), server, context.core().votes(), context.core().buttons(),
@@ -198,8 +208,13 @@ public final class ChatModule implements FlexModule {
         });
 
         var networkSettings = context.settings(NetworkChatSettings.class, NetworkChatSettings.DEFAULTS);
+        networkPool = java.util.concurrent.Executors.newSingleThreadExecutor(task -> {
+            Thread thread = new Thread(task, "chat-network-publisher");
+            thread.setDaemon(true);
+            return thread;
+        });
         network = new de.raindancer.modules.chat.service.NetworkChatService(core::link, core.bus(),
-                onNetwork, mutedHere,
+                onNetwork, networkPool, mutedHere,
                 server::sendMessage,
                 (tag, line) -> context.chat().mm(context.core().messages().raw("chat.network.line"),
                         de.raindancer.core.ui.chat.Chat.arg("tag", tag),
@@ -241,6 +256,18 @@ public final class ChatModule implements FlexModule {
         }
         de.raindancer.core.ui.chat.ChatChannels.unwatch(channelWatcher);
         ChatCommands.stopped();
+        if (historyWriting != null) {
+            historyWriting.close();
+            historyPool.shutdown();
+        }
+        if (networkPool != null) {
+            networkPool.shutdown();
+            try {
+                networkPool.awaitTermination(3, java.util.concurrent.TimeUnit.SECONDS);
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+            }
+        }
         if (history != null) {
             history.flush();
         }

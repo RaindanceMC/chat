@@ -29,12 +29,12 @@ chat:
     winner: "<green>  Winner: <white><answer></white>. <dark_gray>(<count> voted)"
     tie: "<yellow>  It's a tie between <white><answers></white>. Rematch?"
     nobody-voted: "<gray>  Nobody voted. Tough crowd."
-    none: "<gray>There's no poll running right now."
+    none: "<gray>There's no poll running right now. <dark_gray>/poll starts one."
     not-yours: "<red>That's not your poll to end — only whoever started it, or staff."
     off: "<red>Polls are switched off on this server."
     one-at-a-time: "<yellow>A poll is already running. Only one poll can run at a time."
     not-started: "<red>That poll couldn't be started — try different answers."
-    not-a-poll: "<red><detail>"
+    not-a-poll: "<red><detail> <gray>Example: <white>/poll 2m Best mob? | Creeper | Axolotl"
     no-question: "<red>Ask a question first. A poll needs a question."
     question-too-long: "<red>That question is too long — keep it under 100 characters."
     too-few: "<red>A poll needs at least two answers."
@@ -129,7 +129,7 @@ chat:
   # ── /chathistory ──────────────────────────────────────────────────────────
   history:
     disabled: "<red>Chat history is switched off on this server."
-    none: "<gray>Nothing happened while you were away."
+    none: "<gray>Nothing happened while you were away. <dark_gray>/chathistory 20 shows the last 20 lines instead."
     missed: "<yellow>You missed <white><count></white> message(s) — /chathistory to catch up."
     header: "<gray>── <white><count></white> message(s) ──"
     line: "<dark_gray>[<white><time></white>] <gray><player>: <text>"

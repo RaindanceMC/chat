@@ -19,6 +19,7 @@ public final class ChatHistoryService implements IChatService {
     private final LongSupplier clock;
 
     private volatile ChatSettings settings;
+    private volatile Runnable writer;
 
     public ChatHistoryService(ChatHistoryStore store, ChatSettings settings) {
         this(store, settings, System::currentTimeMillis);
@@ -58,14 +59,24 @@ public final class ChatHistoryService implements IChatService {
         return settings.historyEnabled() ? store.lastLines(count) : List.of();
     }
 
+    /** Hands the write after a quit to {@code writer} (debounced, off the server's threads) instead of doing it in place. */
+    public void writeWith(Runnable writer) {
+        this.writer = writer;
+    }
+
     /**
      * Marks this moment as when the player left — the point {@link #missedBy} measures from next
-     * time they join — and writes the log to disk, piggybacking the write on an event that already
-     * happens far less often than a chat message does.
+     * time they join — and has the log written: in place unless {@link #writeWith} says who does it, which on
+     * a server is a debounced background write, so a mass quit never waits on the database.
      */
     public void markLeft(UUID player) {
         store.markQuit(player, clock.getAsLong());
-        store.flush();
+        Runnable later = writer;
+        if (later != null) {
+            later.run();
+        } else {
+            store.flush();
+        }
     }
 
     public boolean historyEnabled() {

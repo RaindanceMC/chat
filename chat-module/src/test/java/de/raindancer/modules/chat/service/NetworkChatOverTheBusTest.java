@@ -144,4 +144,27 @@ class NetworkChatOverTheBusTest {
 
         assertThat(arenaHeard).isEmpty();
     }
+
+    @Test
+    @DisplayName("a line is handed to the publisher, not published on the saying thread, and lines keep their order")
+    void publishedFromThePublisher() {
+        List<Runnable> queued = new ArrayList<>();
+        List<Component> arenaHeard = new ArrayList<>();
+        NetworkChatService arena = new NetworkChatService(Optional::empty, hub.bus("arena"), () -> true,
+                id -> false, arenaHeard::add, (tag, line) -> line, new NetworkChatSettings(true, "Arena"));
+        arena.listen();
+        NetworkChatService smp = new NetworkChatService(Optional::empty, hub.bus("smp"), () -> true, queued::add,
+                id -> false, c -> { }, (tag, line) -> line, new NetworkChatSettings(true, "SMP"));
+
+        UUID lilly = UUID.randomUUID();
+        smp.said(lilly, "Lilly", "one", Component.text("one"));
+        smp.said(lilly, "Lilly", "two", Component.text("two"));
+        hub.drain();
+        assertThat(arenaHeard).isEmpty();
+        assertThat(queued).hasSize(2);
+
+        queued.forEach(Runnable::run);
+        hub.drain();
+        assertThat(arenaHeard.stream().map(PLAIN::serialize).toList()).containsExactly("one", "two");
+    }
 }
