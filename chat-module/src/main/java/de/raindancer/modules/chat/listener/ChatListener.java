@@ -91,8 +91,10 @@ public final class ChatListener implements IChatListener {
         services.history().record(sender.getUniqueId(), sender.getName(), text);
 
         List<de.raindancer.modules.chat.model.Mention> mentioned = services.mentions().find(sender, text);
-        event.renderer(ChatRenderer.viewerUnaware((source, sourceDisplayName, message) ->
-                services.format().renderLine(sender, text, mentioned)));
+        // Per viewer: a [/command] in the line is a drawn button for whoever wears the pack, bracketed text for the rest.
+        net.kyori.adventure.text.Component line = services.format().renderLine(sender, text, mentioned);
+        event.renderer((source, sourceDisplayName, message, viewer) -> de.raindancer.core.ui.chat.CommandButtons
+                .render(line, de.raindancer.core.ui.chat.CommandButtons.drawnFor(viewer)));
         services.mentions().notify(sender, text, mentioned);
     }
 
