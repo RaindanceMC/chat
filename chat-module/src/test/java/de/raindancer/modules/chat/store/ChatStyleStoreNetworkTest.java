@@ -89,6 +89,40 @@ class ChatStyleStoreNetworkTest {
     }
 
     @Test
+    @DisplayName("two servers whose players choose at the very same time lose nobody's choice")
+    void concurrentChoicesKept() throws Exception {
+        ChatStyleStore smp = on("smp");
+        ChatStyleStore arena = on("arena");
+        java.util.List<UUID> onSmp = java.util.stream.Stream.generate(UUID::randomUUID).limit(40).toList();
+        java.util.List<UUID> onArena = java.util.stream.Stream.generate(UUID::randomUUID).limit(40).toList();
+        java.util.concurrent.CountDownLatch go = new java.util.concurrent.CountDownLatch(1);
+        Thread first = new Thread(() -> choose(smp, onSmp, GOLD, go));
+        Thread second = new Thread(() -> choose(arena, onArena, RED, go));
+        first.start();
+        second.start();
+        go.countDown();
+        first.join();
+        second.join();
+        network.heard();
+
+        for (ChatStyleStore store : java.util.List.of(smp, arena)) {
+            assertThat(onSmp.stream().filter(who -> !store.of(who).equals(GOLD)).toList()).isEmpty();
+            assertThat(onArena.stream().filter(who -> !store.of(who).equals(RED)).toList()).isEmpty();
+        }
+    }
+
+    private static void choose(ChatStyleStore store, java.util.List<UUID> players, ChatStyle style,
+                               java.util.concurrent.CountDownLatch go) {
+        try {
+            go.await();
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            return;
+        }
+        players.forEach(who -> store.set(who, style));
+    }
+
+    @Test
     @DisplayName("a document that cannot be read leaves what is held alone and refuses to write over it")
     void unreadableIsNotWrittenOver() throws Exception {
         Database broken = TestDatabases.unusable(plugins.resolve("broken.db"), Documents.SCHEMA);

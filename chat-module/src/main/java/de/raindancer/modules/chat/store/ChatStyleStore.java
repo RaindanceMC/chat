@@ -55,6 +55,9 @@ public final class ChatStyleStore {
      * in-memory map that started empty. It is tried again before the next write. */
     private volatile boolean readable = true;
 
+    /** Test seam: runs in {@link #set} between the choice reaching the map and being noted as unwritten. */
+    volatile Runnable duringSet = () -> { };
+
     public ChatStyleStore(Path dataFolder) {
         this(YamlStore.network(dataFolder.resolve("chatstyles.yml")));
     }
@@ -112,8 +115,12 @@ public final class ChatStyleStore {
 
     /** Remembers what somebody has chosen, and writes it out — on every change, the same reason
      * {@code TpaPrefsFile} does: a choice live now and gone after a restart is found again by
-     * whoever made it, expecting it to have stuck. */
-    public void set(UUID who, ChatStyle style) {
+     * whoever made it, expecting it to have stuck.
+     *
+     * <p>Synchronized with {@link #load()}: a reload that ran between the two maps being updated saw a
+     * choice in {@code styles} that was not yet in {@code unwritten} and dropped it, and the write
+     * that followed saved the document without it. */
+    public synchronized void set(UUID who, ChatStyle style) {
         if (who == null || style == null) {
             return;
         }
@@ -122,6 +129,7 @@ public final class ChatStyleStore {
         } else {
             styles.put(who, style);
         }
+        duringSet.run();
         unwritten.put(who, style);
         save();
     }
