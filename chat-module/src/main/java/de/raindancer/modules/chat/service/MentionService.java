@@ -47,12 +47,6 @@ public final class MentionService implements IChatService {
     /** {@code @} then a run of characters a name, or a nickname in its typed form, is made of. */
     private static final Pattern TOKEN = Pattern.compile("@([A-Za-z0-9_]{1,32})");
 
-    /**
-     * By key rather than {@code org.bukkit.Sound}'s own enum — that one resolves through Paper's
-     * registry the moment its class loads, which a unit test never has running. A {@link Key} is
-     * just a string; nothing here needs a live server to be tested.
-     */
-    private static final Key PING_SOUND = Key.key("entity.experience_orb.pickup");
 
     private final Server server;
     private final Vanish vanish;
@@ -62,6 +56,7 @@ public final class MentionService implements IChatService {
 
     private volatile ChatSettings settings;
     private volatile NetworkMentions network;
+    private volatile ChatStyleService styles;
 
     public MentionService(Server server, Vanish vanish, Messages messages, ChatSettings settings) {
         this(server, vanish, messages, settings, null);
@@ -152,8 +147,23 @@ public final class MentionService implements IChatService {
     }
 
     private void ping(Player who, String from, String text) {
-        who.playSound(Sound.sound(PING_SOUND, Sound.Source.PLAYER, 0.7f, 1.4f));
+        de.raindancer.modules.chat.model.MentionPing ping = pingOf(who);
+        who.playSound(Sound.sound(Key.key(ping.sound()), Sound.Source.PLAYER, ping.volume(), ping.pitch()));
         messages.send(who, "chat.mention.pinged", "player", from, "text", text);
+    }
+
+    /** Where their own choice of ping lives; without it everybody hears the classic one. */
+    public void styles(ChatStyleService chosen) {
+        this.styles = chosen;
+    }
+
+    /** Their own ping while they hold {@code chat.style} (Prime), the classic one otherwise. */
+    de.raindancer.modules.chat.model.MentionPing pingOf(Player who) {
+        ChatStyleService chosen = styles;
+        if (chosen == null || !who.hasPermission(de.raindancer.modules.chat.util.PermissionNodes.STYLE)) {
+            return de.raindancer.modules.chat.model.MentionPing.CLASSIC;
+        }
+        return chosen.styleOf(who.getUniqueId()).ping();
     }
 
     /** Pings somebody on this server for a mention made on another one. */

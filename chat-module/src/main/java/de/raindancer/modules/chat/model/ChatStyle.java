@@ -20,10 +20,23 @@ import net.kyori.adventure.text.format.TextDecoration;
  *                      would have without this feature at all, not black
  */
 public record ChatStyle(NamedTextColor color, boolean bold, boolean italic, boolean underlined,
-                        boolean strikethrough) {
+                        boolean strikethrough, MentionPing ping) {
 
-    /** Nobody has chosen anything: no colour, no decoration — messages render exactly as before. */
-    public static final ChatStyle DEFAULT = new ChatStyle(null, false, false, false, false);
+    /** Nobody has chosen anything: no colour, no decoration, the classic ping — exactly as before. */
+    public static final ChatStyle DEFAULT = new ChatStyle(null, false, false, false, false, MentionPing.CLASSIC);
+
+    public ChatStyle {
+        ping = ping == null ? MentionPing.CLASSIC : ping;
+    }
+
+    public ChatStyle(NamedTextColor color, boolean bold, boolean italic, boolean underlined, boolean strikethrough) {
+        this(color, bold, italic, underlined, strikethrough, MentionPing.CLASSIC);
+    }
+
+    /** The same style, with a different sound for being mentioned. */
+    public ChatStyle withPing(MentionPing newPing) {
+        return new ChatStyle(color, bold, italic, underlined, strikethrough, newPing);
+    }
 
     /** Whether this is worth writing to disk at all — {@link #DEFAULT} is the same as never having asked. */
     public boolean isDefault() {
@@ -32,16 +45,16 @@ public record ChatStyle(NamedTextColor color, boolean bold, boolean italic, bool
 
     /** The same style, with a different colour — null clears it back to "unchosen". */
     public ChatStyle withColor(NamedTextColor newColor) {
-        return new ChatStyle(newColor, bold, italic, underlined, strikethrough);
+        return new ChatStyle(newColor, bold, italic, underlined, strikethrough, ping);
     }
 
     /** The same style, with one decoration flipped. */
     public ChatStyle withDecoration(TextDecoration decoration, boolean value) {
         return switch (decoration) {
-            case BOLD -> new ChatStyle(color, value, italic, underlined, strikethrough);
-            case ITALIC -> new ChatStyle(color, bold, value, underlined, strikethrough);
-            case UNDERLINED -> new ChatStyle(color, bold, italic, value, strikethrough);
-            case STRIKETHROUGH -> new ChatStyle(color, bold, italic, underlined, value);
+            case BOLD -> new ChatStyle(color, value, italic, underlined, strikethrough, ping);
+            case ITALIC -> new ChatStyle(color, bold, value, underlined, strikethrough, ping);
+            case UNDERLINED -> new ChatStyle(color, bold, italic, value, strikethrough, ping);
+            case STRIKETHROUGH -> new ChatStyle(color, bold, italic, underlined, value, ping);
             default -> this;   // obfuscated is not offered; asking for it changes nothing
         };
     }

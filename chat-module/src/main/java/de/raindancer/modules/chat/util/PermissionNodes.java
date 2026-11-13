@@ -36,6 +36,9 @@ public final class PermissionNodes {
     /** {@code /chatstyle} — picking a colour and decorations for your own messages. */
     public static final String STYLE = "chat.style";
 
+    /** {@code :heart:} → ❤ in your own messages — a Prime perk. */
+    public static final String EMOTES = "chat.emotes";
+
     /** Start a poll. Operators by default — a server that wants everybody asking grants it. */
     public static final String POLL = "chat.poll";
 
@@ -70,12 +73,29 @@ public final class PermissionNodes {
                         PermissionDefault.TRUE),
                 new Permission(STYLE, "Pick a colour and decorations for your own chat messages",
                         PermissionDefault.OP),
+                new Permission(EMOTES, "Typed :heart: and friends become their symbol", PermissionDefault.OP),
                 new Permission(POLL, "Start a poll in chat", PermissionDefault.OP),
                 new Permission(AD, "Pay to broadcast an ad with /ad", PermissionDefault.TRUE),
                 new Permission(POLL_MANAGE, "End anybody's poll early", PermissionDefault.OP),
                 new Permission(SUPPORT, "See the server's support link with /support", PermissionDefault.TRUE),
                 new Permission(SUPPORT_ADMIN, "Give, take and assign supporter standing with /support admin",
                         PermissionDefault.OP));
+    }
+
+    /** Chat colour, mention ping and emotes come with Prime: children of {@code rains.prime}. Idempotent. */
+    public static void makePrime(org.bukkit.plugin.PluginManager manager) {
+        Permission prime = de.raindancer.core.social.support.PrimePermission.permission(manager);
+        boolean changed = false;
+        for (String node : List.of(STYLE, EMOTES)) {
+            if (!Boolean.TRUE.equals(prime.getChildren().get(node))) {
+                prime.getChildren().put(node, true);
+                changed = true;
+            }
+        }
+        // Whoever already holds rains.prime picks the new children up; without a running server there is nobody.
+        if (changed && org.bukkit.Bukkit.getServer() != null) {
+            prime.recalculatePermissibles();
+        }
     }
 
     /** @return how many were added, for the line in the log */

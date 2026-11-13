@@ -42,6 +42,7 @@ class FormatServiceTest {
         Player who = mock(Player.class);
         when(who.getUniqueId()).thenReturn(UUID.randomUUID());
         when(who.getName()).thenReturn(name);
+        when(who.hasPermission(de.raindancer.modules.chat.util.PermissionNodes.STYLE)).thenReturn(true);
         return who;
     }
 
@@ -280,6 +281,19 @@ class FormatServiceTest {
                     == TextDecoration.State.TRUE && child.color() == NamedTextColor.YELLOW))
                     .as("the mention should still be yellow and bold, not the sender's gold")
                     .isTrue();
+        }
+
+        @Test
+        @DisplayName("Prime ended (no chat.style any more): the chosen colour is kept but not shown")
+        void styleNeedsThePerk() {
+            Player tom = player("Tom");
+            when(tom.hasPermission(de.raindancer.modules.chat.util.PermissionNodes.STYLE)).thenReturn(false);
+            styles.set(tom.getUniqueId(), ChatStyle.DEFAULT.withColor(NamedTextColor.GOLD));
+
+            Component rendered = service.renderLine(tom, "hello there", List.of());
+
+            assertThat(findChild(rendered, child -> child.color() == NamedTextColor.GOLD)).isFalse();
+            assertThat(styles.styleOf(tom.getUniqueId()).color()).isEqualTo(NamedTextColor.GOLD);
         }
 
         @Test

@@ -50,7 +50,7 @@ import java.util.function.Predicate;
  */
 public final class ChatModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("chat", "Chat", "1.29.0")
+    private static final ModuleInfo INFO = ModuleInfo.of("chat", "Chat", "1.30.0")
             .describedAs("Chat format, @-mentions, a caps and repeat filter, a message cooldown, "
                     + "private chats, and /chat clear, freeze and slowmode")
             .by("Raindancer118");
@@ -93,6 +93,7 @@ public final class ChatModule implements FlexModule {
         context.core().messages().seriousFrom(ChatModule.class.getResourceAsStream("messages-serious.yml"));
 
         int registered = PermissionNodes.register(server);
+        PermissionNodes.makePrime(server.getPluginManager());
         if (registered > 0) {
             log.info("{} permission(s) registered.", registered);
         }
@@ -112,6 +113,7 @@ public final class ChatModule implements FlexModule {
         context.closeWith(inboxWatch::close);
         MentionService mentions = new MentionService(server, context.core().vanish(),
                 context.core().messages(), settings.current(), inbox);
+        mentions.styles(styleService);
         var inboxSaving = de.raindancer.core.platform.util.Scheduling.asyncTimer(context.plugin(), 60, 60,
                 task -> inbox.save());
         if (inboxSaving != null) {

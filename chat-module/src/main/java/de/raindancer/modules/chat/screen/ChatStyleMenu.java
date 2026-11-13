@@ -70,14 +70,12 @@ public final class ChatStyleMenu extends Menu {
     protected void render() {
         ChatStyle style = services.styles().styleOf(viewer.getUniqueId());
 
-        band(MenuLayout.WHO, 4, Icons.of(Material.PAPER, "<white>Preview",
+        // In the header: in the band it pushed the seventh colour past column 7, onto the sixth.
+        set(MenuLayout.HEADER_SUBJECT, Icons.of(Material.PAPER, "<white>Preview",
                 List.of("<gray>What your messages look like:", "", preview(style))));
 
         int column = 1;
         for (NamedTextColor color : WHO_COLORS) {
-            if (column == 4) {
-                column = 5;   // the preview sits at column 4 of this band
-            }
             band(MenuLayout.WHO, column, colorIcon(color, style), click -> choose(style.withColor(color)));
             column++;
         }
@@ -98,6 +96,18 @@ public final class ChatStyleMenu extends Menu {
                     click -> choose(style.withDecoration(decoration, !style.has(decoration))));
             column++;
         }
+        de.raindancer.modules.chat.model.MentionPing ping = style.ping();
+        toolbar(3, Icons.of(Material.NOTE_BLOCK, "<white>Mention sound: <gold>" + ping.label(),
+                        "<gray>What you hear when somebody", "<gray>@-mentions you.", "",
+                        "<gray>Next: <white>" + ping.next().label(), "<yellow>Click to switch and hear it."),
+                click -> {
+                    de.raindancer.modules.chat.model.MentionPing next = ping.next();
+                    viewer.playSound(net.kyori.adventure.sound.Sound.sound(net.kyori.adventure.key.Key.key(next.sound()),
+                            net.kyori.adventure.sound.Sound.Source.PLAYER, next.volume(), next.pitch()));
+                    choose(style.withPing(next));
+                });
+        toolbar(5, emotesIcon(), click -> { });
+
         band(MenuLayout.LAND, column, Icons.of(Material.BARRIER, "<red>No colour",
                         "<gray>Back to how everybody else's", "<gray>messages look by default."),
                 click -> choose(ChatStyle.DEFAULT));
@@ -106,6 +116,16 @@ public final class ChatStyleMenu extends Menu {
     private void choose(ChatStyle chosen) {
         services.styles().set(viewer.getUniqueId(), chosen);
         refresh();
+    }
+
+    /** The emote codes, to read — they work in any message once you hold chat.emotes. */
+    private ItemStack emotesIcon() {
+        List<String> lore = new java.util.ArrayList<>();
+        lore.add("<gray>Type these in chat:");
+        lore.add("");
+        de.raindancer.modules.chat.rules.Emotes.all().forEach((code, symbol) ->
+                lore.add("<gray>" + code + " <dark_gray>→ <white>" + symbol.replace("\\", "\\\\")));
+        return Icons.of(Material.BOOK, "<white>Emotes", lore);
     }
 
     /** One swatch — its own colour, named, with a check mark on whichever is chosen right now. */

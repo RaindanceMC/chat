@@ -87,7 +87,8 @@ public final class ChatStyleStore {
                 }
                 ChatStyle style = new ChatStyle(colorOf(theirs.getString("color")),
                         theirs.getBoolean("bold"), theirs.getBoolean("italic"),
-                        theirs.getBoolean("underlined"), theirs.getBoolean("strikethrough"));
+                        theirs.getBoolean("underlined"), theirs.getBoolean("strikethrough"),
+                        de.raindancer.modules.chat.model.MentionPing.named(theirs.getString("ping")));
                 if (!style.isDefault()) {
                     fresh.put(who, style);
                 }
@@ -145,6 +146,9 @@ public final class ChatStyleStore {
             yaml.set(base + ".italic", style.italic());
             yaml.set(base + ".underlined", style.underlined());
             yaml.set(base + ".strikethrough", style.strikethrough());
+            if (style.ping() != de.raindancer.modules.chat.model.MentionPing.CLASSIC) {
+                yaml.set(base + ".ping", style.ping().name().toLowerCase(java.util.Locale.ROOT));
+            }
         }));
         if (written) {
             sent.forEach(unwritten::remove);

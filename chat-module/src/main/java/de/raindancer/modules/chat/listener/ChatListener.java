@@ -55,6 +55,13 @@ public final class ChatListener implements IChatListener {
     public void onChat(AsyncChatEvent event) {
         Player sender = event.getPlayer();
         String text = PLAIN.serialize(event.message());
+        if (sender.hasPermission(PermissionNodes.EMOTES)) {
+            String withEmotes = de.raindancer.modules.chat.rules.Emotes.apply(text);
+            if (!withEmotes.equals(text)) {
+                text = withEmotes;
+                event.message(Component.text(text));
+            }
+        }
 
         if (services.privateChat().isTalkingPrivately(sender.getUniqueId())) {
             event.setCancelled(true);

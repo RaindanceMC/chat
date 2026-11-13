@@ -65,7 +65,7 @@ public final class FormatService implements IChatService {
      * child left unset, never overrides one it set for itself. See {@link ChatStyle#asStyle()}.
      */
     public Component render(Player sender, String plainText, List<Player> mentioned) {
-        ChatStyle style = styles == null ? ChatStyle.DEFAULT : styles.styleOf(sender.getUniqueId());
+        ChatStyle style = styleOf(sender);
         Component message = messageOf(plainText, mentioned).style(style.asStyle())
                 .colorIfAbsent(settings.defaultMessageColor());
         return chat.mm(settings.format(),
@@ -85,12 +85,24 @@ public final class FormatService implements IChatService {
      * hidden players look exactly the same as online ones: the hover never says which.
      */
     public Component renderLine(org.bukkit.OfflinePlayer sender, String plainText, List<Mention> mentions) {
-        ChatStyle style = styles == null ? ChatStyle.DEFAULT : styles.styleOf(sender.getUniqueId());
+        ChatStyle style = styleOf(sender);
         Component message = mentionsOf(plainText, mentions).style(style.asStyle())
                 .colorIfAbsent(settings.defaultMessageColor());
         return chat.mm(settings.format(),
                 Chat.formatted("name", nameOf(sender)),
                 Chat.formatted("message", message));
+    }
+
+    /**
+     * Shown only while they hold {@code chat.style} (Prime): when it ends the choice is kept for a return, just not worn.
+     * A sender not on this server is shown as chosen — their own server checked when they said it.
+     */
+    private ChatStyle styleOf(org.bukkit.OfflinePlayer sender) {
+        if (styles == null || sender instanceof Player here
+                && !here.hasPermission(de.raindancer.modules.chat.util.PermissionNodes.STYLE)) {
+            return ChatStyle.DEFAULT;
+        }
+        return styles.styleOf(sender.getUniqueId());
     }
 
     /** A paid ad in the owner's ad template: same name rendering as a chat line, no mentions, no personal colour. */

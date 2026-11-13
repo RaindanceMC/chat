@@ -111,4 +111,14 @@ class ChatStyleStoreTest {
         assertThat(store.of(tom).color()).isNull();
         assertThat(store.of(tom).bold()).isTrue();
     }
+
+    @Test
+    @DisplayName("the chosen mention ping survives a save and a fresh load")
+    void pingSurvivesReload() {
+        UUID tom = UUID.randomUUID();
+        store.set(tom, ChatStyle.DEFAULT.withPing(de.raindancer.modules.chat.model.MentionPing.AMETHYST));
+        ChatStyleStore reloaded = new ChatStyleStore(dataFolder);
+        reloaded.load();
+        assertThat(reloaded.of(tom).ping()).isEqualTo(de.raindancer.modules.chat.model.MentionPing.AMETHYST);
+    }
 }
