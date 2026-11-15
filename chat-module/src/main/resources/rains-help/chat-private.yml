@@ -2,7 +2,7 @@ id: chat-private
 title: Private chats & channels
 summary: "Talk to just a few people: private chats, channels such as team chat, and switching back."
 intro: |
-  For when the whole server does not need to know.
+  Talk to a few players without the whole server reading.
 icon: ENDER_CHEST
 category: Chat & community
 order: 11
@@ -16,7 +16,7 @@ sections:
   - question: How do I start a private chat?
     title: Starting
     text: |
-      {cmd:/chat private <player>} invites somebody; with no name it starts (or returns to) your chat. They join by clicking [Accept] or typing {cmd:/chat private accept <player>} — the invitation stands for 60 seconds. You can be in one private chat at a time; whoever started it owns it.
+      {cmd:/chat private <player>} invites somebody; with no name it starts (or returns to) your chat. They join by clicking [Accept] or typing {cmd:/chat private accept <player>}. The invitation stands for 60 seconds. You can be in one private chat at a time; whoever started it owns it.
   - question: How do I talk there and back?
     title: Switching
     text: |

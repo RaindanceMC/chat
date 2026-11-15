@@ -2,7 +2,7 @@ id: chat-polls
 title: Polls
 summary: "Ask everybody a question with a button per answer, and see how it stands."
 intro: |
-  Democracy, six answers at a time.
+  Ask a question with up to six answers. Everybody votes with a button in chat.
 icon: PAPER
 category: Chat & community
 order: 12
@@ -25,4 +25,4 @@ sections:
   - question: How do I end one?
     title: Ending
     text: |
-      {cmd:/poll end} ends it now — only for whoever started it, or staff (chat.poll.manage). The results go to everybody, with the winner or the tie.
+      {cmd:/poll end} ends it now. Only the player who started it, or staff (chat.poll.manage), can do this. The results go to everybody, with the winner or the tie.

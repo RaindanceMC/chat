@@ -1,8 +1,8 @@
 id: chat-support
 title: Supporting the server
-summary: "Where to chip in, if you'd like to."
+summary: "How to support the server, if you want to."
 intro: |
-  Servers cost money and time. If you enjoy this one and want to help, here's how — and if not, that's fine too.
+  Servers cost money and time. If you like this one and want to help, here is how. Supporting is optional.
 icon: EMERALD
 category: Chat & community
 order: 14
@@ -22,4 +22,4 @@ sections:
     title: A little thank-you
     when: chat-support:support.rewards
     text: |
-      The window shows your own code. Write it in your coffee's message, and a <#C8A27A>☕</#C8A27A> badge by your name, a coffee-bean trail, weapon skins and the whole library of particles and sounds in {cmd:/cosmetics} are yours — only ever cosmetic, nothing that helps in the game. You can hide the badge in Cosmetics.
+      The window shows your own code. Write it in your coffee's message, and a <#C8A27A>☕</#C8A27A> badge by your name, a coffee-bean trail, weapon skins and the whole library of particles and sounds in {cmd:/cosmetics} are yours. They are only cosmetic and do not help in the game. You can hide the badge in Cosmetics.

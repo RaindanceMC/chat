@@ -2,7 +2,7 @@ id: chat
 title: Chat
 summary: "Talking, @-mentions, links, chat history, your own message colour and the rules that keep chat readable."
 intro: |
-  Words, mostly. Here is what the chat does with yours.
+  How chat works: mentions, history, message colour and the rules that apply to your messages.
 icon: WRITABLE_BOOK
 category: Chat & community
 order: 10
@@ -31,7 +31,7 @@ sections:
     title: Chat history
     when: chat:history-enabled
     text: |
-      {cmd:/chathistory} shows what was said while you were away; {cmd:/chathistory <count>} shows the last lines regardless of when you left. The server remembers the last <white>{setting:chat:history-capacity|count}</white> lines — for everybody together — and deletes lines older than <white>{setting:chat:history-retention-days|days}</white>.
+      {cmd:/chathistory} shows what was said while you were away; {cmd:/chathistory <count>} shows the last lines regardless of when you left. The server remembers the last <white>{setting:chat:history-capacity|count}</white> lines (for everybody together) and deletes lines older than <white>{setting:chat:history-retention-days|days}</white>.
       {if:chat:history-notify-on-join}When you join and missed something, you are told.{/if}
   - question: Can I colour my messages?
     title: Chat style

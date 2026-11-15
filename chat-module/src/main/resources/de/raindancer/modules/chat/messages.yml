@@ -16,9 +16,9 @@ chat:
   poll:
     asked: "<gold><bold>Poll</bold> <gray>by <white><player></white>: <yellow><question>"
     button: "<aqua>[<answer>]"
-    button-tooltip: "<gray>Vote for <white><answer></white> — you can change your mind until it ends"
+    button-tooltip: "<gray>Vote for <white><answer></white>. You can change your mind until it ends."
     closes-in: "<dark_gray>  Click an answer. Closes in <time>."
-    voted: "<green>Vote's in: <white><answer></white>. Democracy!"
+    voted: "<green>Vote counted: <white><answer></white>."
     changed: "<green>Vote changed. You are now on <white><answer></white>."
     already: "<gray>You already picked <white><answer></white>."
     over: "<gray>That poll is over."
@@ -27,22 +27,22 @@ chat:
     results-so-far: "<gold>So far: <yellow><question>"
     result-line: "<white>  <answer> <aqua><bar></aqua> <gray><percent>% (<count>)"
     winner: "<green>  Winner: <white><answer></white>. <dark_gray>(<count> voted)"
-    tie: "<yellow>  It's a tie between <white><answers></white>. Rematch?"
-    nobody-voted: "<gray>  Nobody voted. Tough crowd."
+    tie: "<yellow>  It's a tie between <white><answers></white>."
+    nobody-voted: "<gray>  Nobody voted."
     none: "<gray>There's no poll running right now. <dark_gray>/poll starts one."
-    not-yours: "<red>That's not your poll to end — only whoever started it, or staff."
+    not-yours: "<red>Only the player who started the poll, or staff, can end it."
     off: "<red>Polls are switched off on this server."
     one-at-a-time: "<yellow>A poll is already running. Only one poll can run at a time."
-    not-started: "<red>That poll couldn't be started — try different answers."
+    not-started: "<red>That poll could not be started. Try different answers."
     not-a-poll: "<red><detail> <gray>Example: <white>/poll 2m Best mob? | Creeper | Axolotl"
-    no-question: "<red>Ask a question first. A poll needs a question."
-    question-too-long: "<red>That question is too long — keep it under 100 characters."
+    no-question: "<red>A poll needs a question."
+    question-too-long: "<red>That question is too long. Keep it under 100 characters."
     too-few: "<red>A poll needs at least two answers."
     too-many: "<red>At most six answers are allowed."
     empty-answer: "<red>One of the answers is empty."
     answer-too-long: "<red>Keep each answer to 24 characters, so it fits on a button."
     twice: "<red>The same answer twice would split the vote."
-    length: "<red>Between 10 seconds and an hour, please. This is a poll, not a long-term relationship."
+    length: "<red>The duration must be between 10 seconds and an hour."
     help:
       - "<gold><bold>Polls"
       - "<gray>Ask a question, add up to six answers, pick how long it runs, Start."
@@ -63,8 +63,8 @@ chat:
     empty: "<red>An ad needs a message. <gray>/ad [message]"
     too-long: "<red>Keep an ad to <white><most></white> characters."
     cooldown: "<red>You can place your next ad in <white><seconds></white>s."
-    usage: "<gray>/ad [message] <dark_gray>— tells everybody online. Costs <white><price></white>, up to <most> characters."
-    usage-free: "<gray>/ad [message] <dark_gray>— tells everybody online, up to <most> characters."
+    usage: "<gray>/ad [message]<dark_gray>: tells everybody online. Costs <white><price></white>, up to <most> characters."
+    usage-free: "<gray>/ad [message]<dark_gray>: tells everybody online, up to <most> characters."
     cannot-afford: "<red>An ad costs <white><price></white>, and you do not have that much."
     no-economy: "<red>Ads cost <white><price></white>, but this server has no money to pay it with."
     not-charged: "<red>The ad could not be paid for, so it was not sent."
@@ -72,33 +72,33 @@ chat:
 
   # ── the support link, now and then and on /support ───────────────────────
   support:
-    notice: "<#C8A27A>☕ <#F3E3CC>You've got a new message! <open>"
+    notice: "<#C8A27A>☕ <#F3E3CC>You have a new message. <open>"
     open: "<#E8B98A><u>[Read it]</u>"
     open-tooltip: "<#D9BFA0>A little note from the owner"
     window:
-      title: "<#C8A27A>☕ <gradient:#F3E3CC:#C8A27A>A little note for you</gradient>"
+      title: "<#C8A27A>☕ <#F3E3CC>Supporting the server"
       greeting: |-
-        <#F3E3CC><bold>Hey <player>!</bold>
-        <#D9BFA0>Thanks for playing here.
-      text: "<#D9BFA0>I build and run this server myself, in my free time. If you're enjoying it, a coffee would honestly make my day — and it helps keep the server online and growing."
-      signature: "<#E8B98A><italic>— <name>"
-      footer: "<#C8A27A>No pressure at all. You being here already means a lot. <#E57373>❤"
+        <#F3E3CC><bold>Hello <player>,</bold>
+        <#D9BFA0>thank you for playing here.
+      text: "<#D9BFA0>This server is run privately and paid for out of pocket. If you like it, you can contribute to its running costs."
+      signature: "<#E8B98A><italic><name>"
+      footer: "<#C8A27A>Entirely optional. Thank you for being part of it."
       buy: "<gradient:#F3E3CC:#E8B98A>☕ <button></gradient>"
       buy-tooltip: "<#D9BFA0>Opens <#F3E3CC><link>"
-      later: "<#E8D9C4>Not right now"
-      code: "<#D9BFA0>Want a little thank-you? Write <#F3E3CC><bold><code></bold><#D9BFA0> in your coffee's message, and a <#C8A27A>☕</#C8A27A> badge by your name, a coffee-bean trail, weapon skins and every particle and sound are yours."
+      later: "<#E8D9C4>Close"
+      code: "<#D9BFA0>Include <#F3E3CC><bold><code></bold><#D9BFA0> in your message to receive a <#C8A27A>☕</#C8A27A> supporter badge, a coffee-bean particle trail, weapon skins and the full particle and sound library."
       copy: "<#E8D9C4>Copy <code>"
-      copy-tooltip: "<#D9BFA0>Copies your code, ready to paste. The window closes — /support brings it back."
-      supporter: "<#C8A27A>☕ <#F3E3CC>You're a supporter — thank you so much!"
-    follow-up: "<#C8A27A>☕ <#F3E3CC>The message from earlier, in case it slipped by:"
+      copy-tooltip: "<#D9BFA0>Copies your code, ready to paste. The window closes. /support brings it back."
+      supporter: "<#C8A27A>☕ <#F3E3CC>You are a supporter. Thank you."
+    follow-up: "<#C8A27A>☕ <#F3E3CC>The message you received earlier:"
     thanks: |-
-      <#C8A27A>☕ <#F3E3CC><bold>Thank you so much, <player>!</bold>
-      <#D9BFA0>Your coffee arrived. The <#C8A27A>☕</#C8A27A> badge by your name, the coffee-bean trail, weapon skins and every particle and sound in /cosmetics are yours now.
+      <#C8A27A>☕ <#F3E3CC><bold>Thank you, <player>.</bold>
+      <#D9BFA0>Your support has been received. The <#C8A27A>☕</#C8A27A> badge, the coffee-bean trail, weapon skins and the full particle and sound library in /cosmetics are now available to you.
     admin:
       usage: "<gray>/support admin inbox <dark_gray>|</dark_gray> give <player> [amount] <dark_gray>|</dark_gray> take <player> <dark_gray>|</dark_gray> assign <number> <player> <dark_gray>|</dark_gray> dismiss <number>"
-      inbox-empty: "<gray>No donations are waiting — every one so far came with a code."
+      inbox-empty: "<gray>No donations are waiting. Every one so far came with a code."
       inbox-head: "<#C8A27A>☕ <#F3E3CC>Donations without a code <gray>(forgotten after 90 days)"
-      inbox-line: "<gray><number>. <white><name></white> — <amount>, <coffees> coffee(s), <when>"
+      inbox-line: "<gray><number>. <white><name></white>: <amount>, <coffees> coffee(s), <when>"
       not-here: "<red>Donations arrive on the server that receives the webhook. Use this there."
       unknown-player: "<red>Nobody called <white><player></white> has played here."
       no-such: "<red>There is no waiting donation number <white><number></white>."
@@ -107,7 +107,7 @@ chat:
       not-one: "<gray><player> is not a supporter."
       assigned: "<green>Donation <number> went to <white><player></white>."
       dismissed: "<gray>Donation <number> dismissed."
-    asked: "<gray>Thanks for wanting to support the server! <button> <dark_gray>— every coffee helps keep it running. <red>❤"
+    asked: "<gray>Thank you for wanting to support the server. <button> <dark_gray>Every coffee helps keep it running. <red>❤"
     none: "<gray>This server has no support link set up."
 
   # ── @-mentions ────────────────────────────────────────────────────────────
@@ -121,7 +121,7 @@ chat:
     caps: "<red>Try that again without capital letters."
     repeat: "<red>You already said that."
     cooldown: "<red>Wait <white><seconds></white>s before your next message."
-    slowmode: "<red>Chat is in slowmode — wait <white><seconds></white>s."
+    slowmode: "<red>Chat is in slowmode. Wait <white><seconds></white>s."
 
   # ── frozen chat ───────────────────────────────────────────────────────────
   frozen: "<red>Chat is frozen right now."
@@ -130,7 +130,7 @@ chat:
   history:
     disabled: "<red>Chat history is switched off on this server."
     none: "<gray>Nothing happened while you were away. <dark_gray>/chathistory 20 shows the last 20 lines instead."
-    missed: "<yellow>You missed <white><count></white> message(s) — /chathistory to catch up."
+    missed: "<yellow>You missed <white><count></white> message(s). /chathistory to catch up."
     header: "<gray>── <white><count></white> message(s) ──"
     line: "<dark_gray>[<white><time></white>] <gray><player>: <text>"
 
@@ -138,7 +138,7 @@ chat:
   not-online: "<red><white><player></white> is not online."
 
   # ── /chat private, /chat public ───────────────────────────────────────────
-  # /chat team, /chat all, and the picker /chat opens — channels other modules offer (Core's ChatChannels).
+  # /chat team, /chat all, and the picker /chat opens: channels other modules offer (Core's ChatChannels).
   channel:
     now: "<green>You are talking to <white><channel></white> now."
     unavailable: "<yellow>You have no <white><channel></white> chat to talk in right now."
@@ -152,20 +152,20 @@ chat:
     started: "<light_purple>You are in a private chat now. <gray>/chat private [name] invites somebody, /chat public talks in public again, /chat private end closes it."
     switched: "<light_purple>Your messages go to the private chat again."
     already-private: "<gray>You are already talking in the private chat."
-    public: "<green>Your messages go to public chat again. <gray>You still read the private chat — /chat private to talk there, /chat private leave to leave it."
+    public: "<green>Your messages go to public chat again. <gray>You still read the private chat. /chat private to talk there, /chat private leave to leave it."
     already-public: "<gray>You are already talking in public chat."
     added: "<light_purple><player></light_purple> <gray>joined the private chat."
-    invited: "<light_purple>Invited <white><player></white>. <gray>They join once they accept — the invitation stands for <seconds> seconds."
+    invited: "<light_purple>Invited <white><player></white>. <gray>They join once they accept. The invitation stands for <seconds> seconds."
     invitation: "<white><owner></white> <light_purple>invites you to a private chat. <gray>Nobody else sees it. Stands for <seconds> seconds."
     already-invited: "<gray><player> already has an invitation from you."
     invite-gone: "<red>That invitation is no longer open."
-    you-joined: "<light_purple>You joined <white><owner></white>'s private chat — your messages go there now. <gray>/chat public talks in public again, /chat private leave leaves it."
+    you-joined: "<light_purple>You joined <white><owner></white>'s private chat. Your messages go there now. <gray>/chat public talks in public again, /chat private leave leaves it."
     you-are-in-another-chat: "<red>You are already in another private chat. <gray>/chat private leave leaves it first."
     you-declined: "<gray>You declined <white><owner></white>'s invitation."
     declined: "<gray><player> declined your invitation."
     already-a-member: "<gray><player> is already in this private chat."
     in-another-chat: "<red><white><player></white> is already in another private chat."
-    not-yourself: "<red>That would be yourself. You are in this chat already, congratulations."
+    not-yourself: "<red>That would be yourself. You are already in this chat."
     not-the-owner: "<red>Only <white><owner></white> can do that in this private chat."
     not-a-member: "<red><white><player></white> is not in this private chat."
     not-in-a-chat: "<red>You are not in a private chat. <gray>/chat private starts one."
@@ -174,7 +174,7 @@ chat:
     left: "<gray><player> left the private chat."
     you-left: "<green>You left the private chat. <gray>Your messages go to public chat again."
     ended: "<gray>The private chat was closed by <white><player></white>. Your messages go to public chat again."
-    ended-offline: "<gray>The private chat closed — <white><player></white> went offline. Your messages go to public chat again."
+    ended-offline: "<gray>The private chat closed because <white><player></white> went offline. Your messages go to public chat again."
     went-offline: "<gray><player> went offline and left the private chat."
     members: "<light_purple>Private chat of <white><owner></white> <gray>(<count>): <white><members>"
 

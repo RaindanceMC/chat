@@ -2,7 +2,7 @@ id: chat-staff
 title: Chat moderation
 summary: "Clearing, freezing and slowing down chat, announcements, and speaking from the console."
 intro: |
-  Chat on fire? You have a hose.
+  Clear, freeze or slow down chat, make announcements, and speak from the console.
 icon: BELL
 category: Staff
 order: 10
@@ -24,7 +24,7 @@ sections:
   - question: How do I slow chat down?
     title: Slowmode
     text: |
-      {cmd:/chat slowmode <seconds|off>}, 0 to 60 seconds, applies to everybody on top of the per-player cooldown (now {setting:chat:message-cooldown-seconds|seconds}, default slowmode {setting:chat:default-slowmode-seconds|seconds}). Raise it for a busy moment rather than leaving it high.
+      {cmd:/chat slowmode <seconds|off>}, 0 to 60 seconds, applies to everybody on top of the per-player cooldown (now {setting:chat:message-cooldown-seconds|seconds}, default slowmode {setting:chat:default-slowmode-seconds|seconds}). Raise it for a busy moment and lower it again afterwards.
   - question: How do I make an announcement?
     title: Announce
     permission: chat.announce
