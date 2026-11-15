@@ -19,7 +19,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** The bundled wording, rendered: the button has to actually open the link, in both tones. */
+/** The bundled wording, rendered: the button has to actually open the link. */
 class SupportNoteTest {
 
     private static final String LINK = "https://buymeacoffee.com/Raindancer118";
@@ -27,11 +27,9 @@ class SupportNoteTest {
     @TempDir
     Path folder;
 
-    private Messages messages(Messages.Tone tone) {
+    private Messages messages() {
         Messages messages = new Messages(folder.resolve("messages.yml"));
         messages.defineFrom(ChatModule.class.getResourceAsStream("messages.yml"));
-        messages.seriousFrom(ChatModule.class.getResourceAsStream("messages-serious.yml"));
-        messages.tone(tone);
         return messages;
     }
 
@@ -45,15 +43,13 @@ class SupportNoteTest {
     @ValueSource(strings = {"chat.support.asked"})
     @DisplayName("/support's answer at the console carries a button that opens the link")
     void buttonOpensTheLink(String key) {
-        for (Messages.Tone tone : Messages.Tone.values()) {
-            Component note = support(new SupportSettings(true, LINK, "Buy me a coffee", 180, 0))
-                    .render(messages(tone), key, "player", "Steve").orElseThrow();
+        Component note = support(new SupportSettings(true, LINK, "Buy me a coffee", 180, 0))
+                .render(messages(), key, "player", "Steve").orElseThrow();
 
-            assertThat(clicks(note)).as(tone + " " + key)
-                    .containsExactly(ClickEvent.openUrl(LINK));
-            String plain = PlainTextComponentSerializer.plainText().serialize(note);
-            assertThat(plain).contains("Buy me a coffee").doesNotContain("<link>", "<button>", "<player>", "<click");
-        }
+        assertThat(clicks(note)).as(key)
+                .containsExactly(ClickEvent.openUrl(LINK));
+        String plain = PlainTextComponentSerializer.plainText().serialize(note);
+        assertThat(plain).contains("Buy me a coffee").doesNotContain("<link>", "<button>", "<player>", "<click");
     }
 
     @Test
@@ -61,7 +57,7 @@ class SupportNoteTest {
     void buttonTextIsText() {
         SupportService sneaky = support(new SupportSettings(true, LINK, "<click:run_command:'/op me'>x", 180, 0));
 
-        Component note = sneaky.render(messages(Messages.Tone.values()[0]), "chat.support.asked", "player", "Steve").orElseThrow();
+        Component note = sneaky.render(messages(), "chat.support.asked", "player", "Steve").orElseThrow();
 
         assertThat(clicks(note)).containsExactly(ClickEvent.openUrl(LINK));
         assertThat(PlainTextComponentSerializer.plainText().serialize(note)).contains("<click:run_command");
@@ -72,7 +68,7 @@ class SupportNoteTest {
     void noLink() {
         SupportService none = support(SupportSettings.DEFAULTS);
 
-        assertThat(none.render(messages(Messages.Tone.values()[0]), "chat.support.asked")).isEmpty();
+        assertThat(none.render(messages(), "chat.support.asked")).isEmpty();
     }
 
     private static List<ClickEvent> clicks(Component component) {
