@@ -89,8 +89,6 @@ public final class ChatModule implements FlexModule {
         context.core().messages().defineFrom(
                 ChatModule.class.getResourceAsStream("messages.yml"),
                 context.chat().brand()::chatPrefix);
-        // The same lines said plainly, for a server whose Message tone is SERIOUS.
-        context.core().messages().seriousFrom(ChatModule.class.getResourceAsStream("messages-serious.yml"));
 
         int registered = PermissionNodes.register(server);
         PermissionNodes.makePrime(server.getPluginManager());
