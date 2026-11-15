@@ -29,17 +29,17 @@ public final class ChatCommands {
         return List.of(
                 ModuleCommand.of("chat", "Private chats, and clearing, freezing or slowing down public chat",
                                 new ChatCommand(ChatCommands::require))
-                        .taking("private — starts a private chat, or talks in yours again",
-                                "private <player> — invites somebody; they join by clicking [Accept]",
-                                "private remove <player> — takes somebody out",
-                                "private accept|decline <player> — answers an invitation by typing",
-                                "private leave|end|list — leaves it, closes it for everybody, or shows who is in it",
-                                "public — talks in public chat again, while still reading the private one",
-                                "clear — sends a wall of blank lines",
-                                "freeze — toggles whether anybody but staff may talk",
-                                "slowmode <seconds|off> — a cooldown for everybody, on top of any "
+                        .taking("private: starts a private chat, or talks in yours again",
+                                "private <player>: invites somebody; they join by clicking [Accept]",
+                                "private remove <player>: takes somebody out",
+                                "private accept|decline <player>: answers an invitation by typing",
+                                "private leave|end|list: leaves it, closes it for everybody, or shows who is in it",
+                                "public: talks in public chat again, while still reading the private one",
+                                "clear: sends a wall of blank lines",
+                                "freeze: toggles whether anybody but staff may talk",
+                                "slowmode <seconds|off>: a cooldown for everybody, on top of any "
                                         + "per-player one",
-                                "say <player> <message> — the console only: a public line in that player's name"),
+                                "say <player> <message>: the console only: a public line in that player's name"),
 
                 ModuleCommand.of("announce", "Broadcasts a banner every online player sees and hears",
                                 new AnnounceCommand(ChatCommands::require))
@@ -49,32 +49,32 @@ public final class ChatCommands {
                 ModuleCommand.of("ad", "Pays to broadcast a line to everybody online",
                                 new de.raindancer.modules.chat.command.AdCommand(ChatCommands::require))
                         .aliased("advert")
-                        .taking("<message> — broadcast it as an ad, if the server sells them")
+                        .taking("<message>: broadcast it as an ad, if the server sells them")
                         .needing(de.raindancer.modules.chat.util.PermissionNodes.AD),
 
                 ModuleCommand.of("support", "Opens the support window",
                                 new de.raindancer.modules.chat.command.SupportCommand(ChatCommands::require,
                                         ChatCommands::requireSupport, () -> supportNotes, () -> supportStaff))
                         .aliased("donate")
-                        .taking("(nothing) — opens the support window",
-                                "admin inbox|give|take|assign|dismiss — staff: supporter standing by hand")
+                        .taking("(nothing): opens the support window",
+                                "admin inbox|give|take|assign|dismiss: staff: supporter standing by hand")
                         .needing(de.raindancer.modules.chat.util.PermissionNodes.SUPPORT),
 
                 ModuleCommand.of("chathistory", "Shows chat that happened while you were away",
                                 new ChatHistoryCommand(ChatCommands::require))
                         // Not "chatlog": that is moderation's staff search through Core's chat log.
-                        .taking("(nothing) — what you missed since you last left",
-                                "<count> — the last count lines, regardless of when you left"),
+                        .taking("(nothing): what you missed since you last left",
+                                "<count>: the last count lines, regardless of when you left"),
 
                 ModuleCommand.of("chatstyle", "Picks a colour and decorations for your own chat messages",
                         new ChatStyleCommand(ChatCommands::require)),
 
                 ModuleCommand.of("poll", "Asks everybody a question, with a button per answer",
                                 new de.raindancer.modules.chat.command.PollCommand(ChatCommands::require))
-                        .taking("(nothing) — builds one in a menu",
-                                "[length] <question> | <answer> | <answer>… — starts one in a line",
-                                "<question> — a yes-or-no poll",
-                                "results — how it stands", "end — ends it now"));
+                        .taking("(nothing): builds one in a menu",
+                                "[length] <question> | <answer> | <answer>…: starts one in a line",
+                                "<question>: a yes-or-no poll",
+                                "results: how it stands", "end: ends it now"));
     }
 
     /** Called when the module enables, after which the commands work. */

@@ -142,7 +142,7 @@ public final class ChatStyleMenu extends Menu {
         String label = readable(decoration);
         return Icons.of(on ? Material.LIME_DYE : Material.GRAY_DYE,
                 (on ? "<green>" : "<gray>") + label,
-                on ? "<green>On — click to turn off." : "<gray>Off — click to turn on.");
+                on ? "<green>On. Click to turn off." : "<gray>Off. Click to turn on.");
     }
 
     private String preview(ChatStyle style) {

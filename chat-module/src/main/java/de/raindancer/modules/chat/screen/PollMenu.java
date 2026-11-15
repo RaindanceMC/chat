@@ -78,7 +78,7 @@ public final class PollMenu extends Menu {
                 Icons.of(Material.LIME_DYE, "<green>Add an answer",
                         "<gray>Up to " + PollRule.MOST_ANSWERS + ", " + PollRule.LONGEST_ANSWER + " characters each.", "",
                         "<dark_gray>Click to type one."),
-                "That's " + PollRule.MOST_ANSWERS + " already — nobody reads past that",
+                "That is the most a poll can have (" + PollRule.MOST_ANSWERS + ")",
                 click -> AnvilInput.open(viewer, "An answer", "", Parsers.text(PollRule.LONGEST_ANSWER),
                         answer -> {
                             polls.draft(viewer.getUniqueId(), polls.draftOf(viewer.getUniqueId()).withAnswer(answer));
@@ -110,7 +110,7 @@ public final class PollMenu extends Menu {
         List<String> lore = new ArrayList<>(List.of("<gray>Puts it in chat with a button per answer."));
         band(MenuLayout.LAND, 5, ready.isAllowed() && !running,
                 Icons.of(Material.EMERALD, "<green>Start the poll", lore),
-                running ? "A poll is already running — one at a time" : services.messages().raw(ready.reason())
+                running ? "A poll is already running. Only one at a time" : services.messages().raw(ready.reason())
                         .replaceAll("<[^>]+>", ""),
                 click -> {
                     viewer.closeInventory();

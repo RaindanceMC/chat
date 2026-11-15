@@ -32,7 +32,7 @@ public final class PollRule {
     public Parsed<Request> read(String typed, Duration standard) {
         String text = typed == null ? "" : typed.strip();
         if (text.isEmpty()) {
-            return Parsed.no("Ask something! /poll [length] question | answer | answer");
+            return Parsed.no("A poll needs a question. /poll [length] question | answer | answer");
         }
         Duration lasting = standard;
         int space = text.indexOf(' ');
@@ -87,14 +87,14 @@ public final class PollRule {
     /** For the typed form, which answers in one line rather than a message key. */
     private static String sentenceFor(String key) {
         return switch (key) {
-            case "chat.poll.no-question" -> "Ask something! /poll [length] question | answer | answer";
-            case "chat.poll.question-too-long" -> "That question is a speech — " + LONGEST_QUESTION + " characters at most.";
-            case "chat.poll.too-few" -> "A poll needs at least two answers, otherwise it's a statement.";
-            case "chat.poll.too-many" -> "At most " + MOST_ANSWERS + " answers — nobody reads past that anyway.";
+            case "chat.poll.no-question" -> "A poll needs a question. /poll [length] question | answer | answer";
+            case "chat.poll.question-too-long" -> "That question is too long. " + LONGEST_QUESTION + " characters at most.";
+            case "chat.poll.too-few" -> "A poll needs at least two answers.";
+            case "chat.poll.too-many" -> "At most " + MOST_ANSWERS + " answers.";
             case "chat.poll.empty-answer" -> "One of those answers is empty.";
             case "chat.poll.answer-too-long" -> "Keep each answer to " + LONGEST_ANSWER + " characters, so it fits on a button.";
             case "chat.poll.twice" -> "The same answer twice would split the vote.";
-            default -> "Between 10 seconds and an hour, please.";
+            default -> "The duration must be between 10 seconds and an hour.";
         };
     }
 

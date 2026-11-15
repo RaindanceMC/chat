@@ -108,7 +108,7 @@ public final class ChatChannelMenu extends PaginatedMenu<String> {
         String footer = current ? "<yellow>You are talking here." : "<dark_gray>Click to talk here.";
         if (id.equals(ChatChannels.ALL)) {
             return Icons.of(current ? Material.LIME_BANNER : Material.WHITE_BANNER, "<white>Everybody",
-                    "<gray>Public chat — everybody online reads it.", footer);
+                    "<gray>Public chat. Everybody online reads it.", footer);
         }
         ChatChannel channel = ChatChannels.byId(id).orElse(null);
         String label = channel == null ? id : channel.label();

@@ -21,7 +21,7 @@ public record SupportSettings(
 
         @In("chat/support") @Title("Send players a support note")
         @Describe("Once somebody has played long enough, they alone get a short note with a button to the link "
-                + "below — never everybody at once. /support shows it any time. Nothing is sent while the link is empty.")
+                + "below, never everybody at once. /support shows it any time. Nothing is sent while the link is empty.")
         @Key("support.enabled")
         boolean enabled,
 
@@ -75,7 +75,7 @@ public record SupportSettings(
         String webhookHost,
 
         @In("chat/support") @Title("Fees in percent")
-        @Describe("What Buy Me a Coffee and the card company keep of every payment, in percent — 5 % platform and "
+        @Describe("What Buy Me a Coffee and the card company keep of every payment, in percent: 5 % platform and "
                 + "2.9 % card by default. Only used to estimate what reached you, e.g. for skins per euro.")
         @Key("support.fee-percent")
         String feePercent,

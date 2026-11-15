@@ -176,7 +176,7 @@ public final class ChatHistoryStore {
         Optional<YamlConfiguration> read = store.readIfReadable();
         if (read.isEmpty()) {
             for (String problem : store.problems()) {
-                log.warn("history.yml: {} — keeping the chat history held in memory.", problem);
+                log.warn("history.yml: {}. Keeping the chat history held in memory.", problem);
             }
             return false;
         }

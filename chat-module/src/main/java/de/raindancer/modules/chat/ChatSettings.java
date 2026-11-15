@@ -36,12 +36,12 @@ public record ChatSettings(
         @Describe("How a line is laid out. <name> is the player's coloured name with their prefix "
                 + "and suffix; <message> is what they typed. The default colour, the name colour and "
                 + "the brackets around the name are their own settings below, applied to whatever "
-                + "this template places <name> and <message> in — this is only for changing the "
+                + "this template places <name> and <message> in. It is only for changing the "
                 + "layout itself, a different separator or order.")
         String format,
 
         @In("chat/format") @Title("Click a name to message them")
-        @Describe("Whether clicking somebody's name in chat fills in /msg <name> — harmless on a "
+        @Describe("Whether clicking somebody's name in chat fills in /msg <name>. This is harmless on a "
                 + "server without essentials-module's /msg, since nothing runs until it is sent.")
         boolean clickToMessage,
 
@@ -52,12 +52,12 @@ public record ChatSettings(
 
         @In("chat/format") @Title("Default message colour")
         @Describe("The colour a message renders in when its sender has not picked their own with "
-                + "/chatstyle — never overrides a colour they did pick.")
+                + "/chatstyle. It never overrides a colour they did pick.")
         NamedTextColor defaultMessageColor,
 
         @In("chat/format") @Title("Default name colour")
         @Describe("The colour a player's name renders in when nothing else has already coloured it "
-                + "— a nickname colour set elsewhere always wins over this.")
+                + "(a nickname colour set elsewhere always wins over this).")
         NamedTextColor defaultNameColor,
 
         @In("chat/format") @Title("Brackets around the name")
@@ -66,8 +66,8 @@ public record ChatSettings(
         boolean bracketsAroundName,
 
         @In("chat/mentions") @Title("@-mentions")
-        @Describe("Whether typing @name in chat pings whoever is online and answers to it — a "
-                + "sound and a message, so it is not missed in a busy chat.")
+        @Describe("Whether typing @name in chat pings whoever is online and answers to it, with a "
+                + "sound and a message so it is not missed in a busy chat.")
         boolean mentionsEnabled,
 
         @In("chat/quality") @Title("Block SHOUTING")
@@ -81,7 +81,7 @@ public record ChatSettings(
         int capsThresholdPercent,
 
         @In("chat/quality") @Title("Shortest message the caps filter checks") @Range(min = 4, max = 40)
-        @Describe("A message shorter than this is never refused for shouting — \"NO\" is not "
+        @Describe("A message shorter than this is never refused for shouting, since \"NO\" is not "
                 + "somebody yelling.")
         int capsMinLength,
 
@@ -95,8 +95,8 @@ public record ChatSettings(
         int messageCooldownSeconds,
 
         @In("chat/quality") @Title("Default slowmode") @Range(min = 0, max = 60)
-        @Describe("A cooldown applied to everybody, all the time, on top of the one above — meant "
-                + "to be raised with /chat slowmode during a busy moment rather than left high. "
+        @Describe("A cooldown applied to everybody, all the time, on top of the one above. Raise it "
+                + "with /chat slowmode during a busy moment and lower it again afterwards. "
                 + "Zero switches it off.")
         int defaultSlowmodeSeconds,
 
@@ -106,7 +106,7 @@ public record ChatSettings(
         boolean historyEnabled,
 
         @In("chat/history") @Title("Lines kept") @Range(min = 20, max = 1000)
-        @Describe("How many of the most recent chat lines are kept — server-wide, not per player. "
+        @Describe("How many of the most recent chat lines are kept, server-wide and not per player. "
                 + "The oldest is dropped once a newer line pushes past this.")
         int historyCapacity,
 
@@ -154,7 +154,7 @@ public record ChatSettings(
         @In("chat/history") @Title("Keep chat history for this many days") @Range(min = 1, max = 730)
         @Describe("Lines older than this are deleted from the history, and so is when somebody was last seen "
                 + "leaving. What people said, beside their names, is personal data: under the GDPR it may be kept "
-                + "while there is a reason — catching up — and no longer. Say how long in your privacy notice.")
+                + "while there is a reason (catching up) and no longer. Say how long in your privacy notice.")
         @Key("history-retention-days")
         int historyRetentionDays
 

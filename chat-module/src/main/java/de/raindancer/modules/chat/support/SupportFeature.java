@@ -136,7 +136,7 @@ public final class SupportFeature {
             webhook = SupportWebhook.start(settings.listenOn(), settings.webhookPort(), this::secret, this::received);
             listening = wanted;
             log.info("Listening for Buy Me a Coffee on {}{}{}", wanted, SupportWebhook.PATH,
-                    secret().isBlank() ? " — but " + secretFile + " is missing or empty, so every delivery is refused"
+                    secret().isBlank() ? ", but " + secretFile + " is missing or empty, so every delivery is refused"
                             : ".");
         } catch (IOException taken) {
             log.warn("Could not listen for Buy Me a Coffee on {} ({}). Donations are not received until the port "
@@ -157,7 +157,7 @@ public final class SupportFeature {
             SupportDesk.Outcome outcome = desk.receive(donation);
             log.info("Buy Me a Coffee event {}: {}", donation.eventId(), switch (outcome) {
                 case CREDITED -> "credited to the player whose code it carried";
-                case WAITING -> "no known code — waiting in /support admin inbox";
+                case WAITING -> "no known code, waiting in /support admin inbox";
                 case ALREADY_HANDLED -> "a repeat, already handled";
                 case MEMBERSHIP_ENDED -> "a membership ended";
                 case IGNORED -> "not a support (" + donation.kind() + "), nothing changed";
