@@ -146,7 +146,11 @@ public final class ChatStyleMenu extends Menu {
     }
 
     private String preview(ChatStyle style) {
-        String plain = viewer.getName() + ": Hey, this looks pretty good!";
+        return preview(style, viewer.getName() + ": Hey, this looks pretty good!");
+    }
+
+    /** {@code text} as MiniMessage, coloured and decorated as {@code style} says. */
+    static String preview(ChatStyle style, String plain) {
         StringBuilder tags = new StringBuilder();
         if (style.color() != null) {
             tags.append('<').append(NamedTextColor.NAMES.key(style.color())).append('>');

@@ -82,4 +82,22 @@ class ChatStyleTest {
         assertThat(ChatStyle.DEFAULT.asStyle().decorations().values())
                 .allMatch(state -> state == TextDecoration.State.NOT_SET);
     }
+
+    @Test
+    @DisplayName("plain means no colour and no decoration; the mention ping is a preference, not a look")
+    void plainIgnoresPing() {
+        assertThat(ChatStyle.DEFAULT.looksPlain()).isTrue();
+        assertThat(ChatStyle.DEFAULT.withPing(MentionPing.BELL).looksPlain()).isTrue();
+        assertThat(ChatStyle.DEFAULT.withColor(NamedTextColor.GOLD).looksPlain()).isFalse();
+        assertThat(ChatStyle.DEFAULT.withDecoration(TextDecoration.ITALIC, true).looksPlain()).isFalse();
+    }
+
+    @Test
+    @DisplayName("taking the look off keeps the mention ping")
+    void plainKeepsPing() {
+        ChatStyle worn = new ChatStyle(NamedTextColor.GOLD, true, true, true, true, MentionPing.BELL);
+        ChatStyle plain = worn.plain();
+        assertThat(plain.looksPlain()).isTrue();
+        assertThat(plain.ping()).isEqualTo(MentionPing.BELL);
+    }
 }

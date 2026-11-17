@@ -39,7 +39,16 @@ public final class ChatStyleCommand implements IChatCommand {
             live.messages().send(sender, "chat.only-a-player");
             return;
         }
-        new ChatStyleMenu(live, viewer, null).open();
+        new ChatStyleMenu(live, viewer, backTo(viewer)).open();
+    }
+
+    /** The cosmetics page when the server has one, so Back leads to everything else worn (Core 2.102.0). */
+    private static de.raindancer.core.ui.menu.Menu backTo(Player viewer) {
+        try {
+            return de.raindancer.core.ui.cosmetic.CosmeticDoors.backTo(viewer, null);
+        } catch (LinkageError olderCore) {
+            return null;
+        }
     }
 
     @Override

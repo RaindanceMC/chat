@@ -33,6 +33,16 @@ public record ChatStyle(NamedTextColor color, boolean bold, boolean italic, bool
         this(color, bold, italic, underlined, strikethrough, MentionPing.CLASSIC);
     }
 
+    /** No colour and no decoration; the mention ping is a preference, not a look, so it does not count. */
+    public boolean looksPlain() {
+        return color == null && !bold && !italic && !underlined && !strikethrough;
+    }
+
+    /** The look taken off, the mention ping kept. */
+    public ChatStyle plain() {
+        return new ChatStyle(null, false, false, false, false, ping);
+    }
+
     /** The same style, with a different sound for being mentioned. */
     public ChatStyle withPing(MentionPing newPing) {
         return new ChatStyle(color, bold, italic, underlined, strikethrough, newPing);

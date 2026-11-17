@@ -50,7 +50,7 @@ import java.util.function.Predicate;
  */
 public final class ChatModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("chat", "Chat", "1.30.2")
+    private static final ModuleInfo INFO = ModuleInfo.of("chat", "Chat", "1.31.0")
             .describedAs("Chat format, @-mentions, a caps and repeat filter, a message cooldown, "
                     + "private chats, and /chat clear, freeze and slowmode")
             .by("Raindancer118");
@@ -193,6 +193,15 @@ public final class ChatModule implements FlexModule {
                 context.core().messages(), context.chat(), context.chat().brand(),
                 settings::current, format, mentions, quality, freeze, chatHistory, styleService,
                 privateChat, polls, ads, sayAs, feed, chatNetwork);
+        // The chat colour is a door on the cosmetics page, where everything worn is put on (Core 2.34.0).
+        try {
+            de.raindancer.core.ui.cosmetic.CosmeticDoor door =
+                    new de.raindancer.modules.chat.screen.ChatStyleDoor(() -> services, styleService);
+            de.raindancer.core.ui.cosmetic.CosmeticDoors.provide(context.plugin(), door);
+            context.closeWith(() -> de.raindancer.core.ui.cosmetic.CosmeticDoors.retract(door));
+        } catch (LinkageError olderCore) {
+            log.info("RainsCore is older than 2.34.0: the chat colour stays in /chatstyle only.");
+        }
 
         // @Name suggestions in the chat box — only while mentions are actually drawn.
         context.core().mentionCompletions().enable(settings.current().mentionsEnabled());
