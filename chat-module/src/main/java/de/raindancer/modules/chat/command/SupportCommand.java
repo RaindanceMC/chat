@@ -40,6 +40,12 @@ public final class SupportCommand implements IChatCommand {
             staff.get().run(source.getSender(), java.util.Arrays.copyOfRange(args, 1, args.length));
             return;
         }
+        // A network without coffee supporters thanks Prime members instead: /support is the way to /prime there.
+        if (!coffeeSupporters() && source.getSender() instanceof Player player
+                && player.getServer().getCommandMap().getCommand("prime") != null) {
+            de.raindancer.core.platform.util.TypedCommands.run(player, "prime");
+            return;
+        }
         SupportNotes notes = window.get();
         if (source.getSender() instanceof Player player && notes != null) {
             if (!notes.open(player)) {
@@ -69,5 +75,13 @@ public final class SupportCommand implements IChatCommand {
     @Override
     public String permission() {
         return PermissionNodes.SUPPORT;
+    }
+
+    private static boolean coffeeSupporters() {
+        try {
+            return de.raindancer.core.social.support.Thanks.supportersOn();
+        } catch (LinkageError olderCore) {
+            return true;
+        }
     }
 }
