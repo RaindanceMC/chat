@@ -50,7 +50,7 @@ import java.util.function.Predicate;
  */
 public final class ChatModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("chat", "Chat", "1.31.0")
+    private static final ModuleInfo INFO = ModuleInfo.of("chat", "Chat", "1.32.0")
             .describedAs("Chat format, @-mentions, a caps and repeat filter, a message cooldown, "
                     + "private chats, and /chat clear, freeze and slowmode")
             .by("Raindancer118");
@@ -201,6 +201,14 @@ public final class ChatModule implements FlexModule {
             context.closeWith(() -> de.raindancer.core.ui.cosmetic.CosmeticDoors.retract(door));
         } catch (LinkageError olderCore) {
             log.info("RainsCore is older than 2.34.0: the chat colour stays in /chatstyle only.");
+        }
+
+        try {
+            var pingChoice = ChatPreferences.mentionPing(() -> styleService);
+            de.raindancer.core.ui.preference.Preferences.offer(context.plugin(), pingChoice);
+            context.closeWith(() -> de.raindancer.core.ui.preference.Preferences.withdraw(pingChoice));
+        } catch (LinkageError olderCore) {
+            log.info("RainsCore is older than 2.103.0: the mention sound stays in /chatstyle only.");
         }
 
         // @Name suggestions in the chat box — only while mentions are actually drawn.
