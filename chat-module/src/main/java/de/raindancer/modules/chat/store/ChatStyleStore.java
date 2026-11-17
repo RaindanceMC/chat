@@ -55,6 +55,14 @@ public final class ChatStyleStore {
      * in-memory map that started empty. It is tried again before the next write. */
     private volatile boolean readable = true;
 
+    /** Runs the write after a choice: off the server's threads in the plugin, where on a network it is a database
+     * write; in place until told otherwise. */
+    private volatile java.util.concurrent.Executor writer = Runnable::run;
+
+    public void writer(java.util.concurrent.Executor writer) {
+        this.writer = writer == null ? Runnable::run : writer;
+    }
+
     /** Test seam: runs in {@link #set} between the choice reaching the map and being noted as unwritten. */
     volatile Runnable duringSet = () -> { };
 
@@ -131,7 +139,7 @@ public final class ChatStyleStore {
         }
         duringSet.run();
         unwritten.put(who, style);
-        save();
+        writer.execute(this::save);
     }
 
     public synchronized boolean save() {

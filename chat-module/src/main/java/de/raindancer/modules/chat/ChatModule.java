@@ -98,6 +98,8 @@ public final class ChatModule implements FlexModule {
 
         styles = new ChatStyleStore(context.dataFolder());
         styles.load();
+        // On a network the document is a database row: a click must not wait for it on the server's thread.
+        styles.writer(task -> de.raindancer.core.platform.util.Scheduling.async(context.plugin(), task));
         // A colour is the player's on every server: the store is one network document, reloaded when another writes it.
         var stylesWatch = styles.watch();
         context.closeWith(stylesWatch::close);
@@ -273,6 +275,11 @@ public final class ChatModule implements FlexModule {
         }
         if (inbox != null) {
             inbox.save();
+        }
+        if (styles != null) {
+            // Async tasks die with the plugin: whatever is still unwritten goes out now.
+            styles.writer(null);
+            styles.save();
         }
         if (feed != null) {
             feed.flush();
